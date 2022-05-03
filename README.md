@@ -13,17 +13,20 @@ Avant de cloner le repository, assurez-vous d'avoir installé :
 * Node.js
 * MetaMask
 
-## Fonctionnalitées (init):
-1    - Propriétaire de Parking enregistre un parking slot (ID 1, adresse, disponibilté, commodité)
-     - Parking ID-1 disponible
+## Fonctionnalités (init):
+### 1ère étape
+	Propriétaire de Parking enregistre un parking slot (ID 1, adresse, disponibilté, commodité)
+	Parking ID-1 disponible
 
-2    - Conducteur reserve 1 parking (transaction => validée)
-     - Parking ID-1 indisponible
+### 2ème étape
+	Conducteur reserve 1 parking (transaction => validée)
+	Parking ID-1 indisponible
 
-3    - Conducteur libère la place de Parking
-     - Mise à jour de la réputation du Parking
-     - Mise à jour de la réputation du Conducteur
-     - Mise à jour de la disponibilité de la place (IOT + réservé ou non reservé)
+### 3ème étape
+	Conducteur libère la place de Parking
+	Mise à jour de la réputation du Parking
+	Mise à jour de la réputation du Conducteur
+	Mise à jour de la disponibilité de la place (IOT + réservé ou non reservé)
 
 ## Running the dapp:
 
