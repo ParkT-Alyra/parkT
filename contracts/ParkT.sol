@@ -8,7 +8,7 @@ contract ParkT is Ownable {
     // state variables
     
     // events
-    event LogParkingBookedPayment(address voterAddress);
+    event LogParkingBookedPayment(address driverAddress);
     
     // function modifiers
     
