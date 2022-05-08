@@ -1,4 +1,3 @@
-// Voting.sol
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
@@ -20,6 +19,8 @@ contract ParkT is Ownable {
         bool isAvailable;
     }
 
+    ParkingSpot[] ParkingSpots;
+
     mapping(address => ParkingSpot) Parkings;
 
     //driverAddress => parkingOwnerAddress
@@ -36,6 +37,7 @@ contract ParkT is Ownable {
 
     function addParkingSpot(address _parkingSpotAddress, uint256 _price, string memory _availabilityDate) internal {
         Parkings[_parkingSpotAddress] = ParkingSpot({price: _price, availabilityDate: _availabilityDate, isRegistered: true, isAvailable: true});
+        ParkingSpots.push(Parkings[_parkingSpotAddress]);
     }
 
     function bookParkingSpot(address _parkingSpotAddress) payable public {
