@@ -14,13 +14,15 @@ contract ParkT is Ownable {
     // struct, arrays, mapping or enums
     struct ParkingSpot {
         uint256 price;
-        string availabilityDate;
+        // string availabilityDate; pas de date pour le MVP - on assume que la réservation se fait de 8h à 18h
         bool isRegistered;
         bool isAvailable;
+        string gps; // @Kevin gestion des coordoonées du parking
     }
 
     ParkingSpot[] ParkingSpots;
 
+    // all parkings
     mapping(address => ParkingSpot) Parkings;
 
     //driverAddress => parkingOwnerAddress
@@ -28,6 +30,7 @@ contract ParkT is Ownable {
 
     mapping(address => uint256) private _balances;
 
+    //available parkings
     mapping(address => ParkingSpot) AvailableParkingOffers;
     
     function registerParking(uint256 _price, string memory _availabilityDate) external {
@@ -37,6 +40,7 @@ contract ParkT is Ownable {
 
     function addParkingSpot(address _parkingSpotAddress, uint256 _price, string memory _availabilityDate) internal {
         Parkings[_parkingSpotAddress] = ParkingSpot({price: _price, availabilityDate: _availabilityDate, isRegistered: true, isAvailable: true});
+        // ajout du parking dans AvailableParkingOffers
         ParkingSpots.push(Parkings[_parkingSpotAddress]);
     }
 
@@ -48,6 +52,7 @@ contract ParkT is Ownable {
         addBookedParkingSpot(msg.sender, _parkingSpotAddress);
         emit LogParkingBookedPayment(msg.sender);
         updateParkingSpotAvailability(_parkingSpotAddress, false);
+        // delete du parking dans AvailableParkingOffers
     }
 
     function addBookedParkingSpot(address _driverAddress, address _parkingSpotAddress) internal {
