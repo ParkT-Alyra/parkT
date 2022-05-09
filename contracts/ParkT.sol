@@ -5,22 +5,21 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ParkT is Ownable {
     // state variables
-    
+
     // events
     event LogParkingBookedPayment(address driverAddress);
-    
+
     // function modifiers
-    
+
     // struct, arrays, mapping or enums
     struct ParkingSpot {
         uint256 price;
         // string availabilityDate; pas de date pour le MVP - on assume que la réservation se fait de 8h à 18h
         bool isRegistered;
         bool isAvailable;
-        string gps; // @Kevin gestion des coordoonées du parking
     }
 
-    ParkingSpot[] ParkingSpots;
+    ParkingSpot[] public ParkingSpots;
 
     // all parkings
     mapping(address => ParkingSpot) Parkings;
@@ -32,14 +31,14 @@ contract ParkT is Ownable {
 
     //available parkings
     mapping(address => ParkingSpot) AvailableParkingOffers;
-    
-    function registerParking(uint256 _price, string memory _availabilityDate) external {
+
+    function registerParking(uint256 _price) external {
         require(!Parkings[msg.sender].isRegistered, "ParkingSpot already registered");
-        addParkingSpot(msg.sender, _price, _availabilityDate);
+        addParkingSpot(msg.sender, _price);
     }
 
-    function addParkingSpot(address _parkingSpotAddress, uint256 _price, string memory _availabilityDate) internal {
-        Parkings[_parkingSpotAddress] = ParkingSpot({price: _price, availabilityDate: _availabilityDate, isRegistered: true, isAvailable: true});
+    function addParkingSpot(address _parkingSpotAddress, uint256 _price) internal {
+        Parkings[_parkingSpotAddress] = ParkingSpot({price: _price, isRegistered: true, isAvailable: true});
         // ajout du parking dans AvailableParkingOffers
         ParkingSpots.push(Parkings[_parkingSpotAddress]);
     }
@@ -66,5 +65,7 @@ contract ParkT is Ownable {
     function updateParkingSpotAvailability(address _parkingSpotAddress, bool isAvailable) internal {
         Parkings[_parkingSpotAddress].isAvailable = isAvailable;
     }
+
+    // ajout coordonnnée struct parking (comment on les ajoute côté front)
 
 }
