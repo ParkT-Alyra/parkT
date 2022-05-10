@@ -12,25 +12,31 @@ contract ParkT is Ownable {
     // function modifiers
 
     // struct, arrays, mapping or enums
+    struct Coordinates {
+        uint256 x;
+        uint256 y;
+    }
+
     struct ParkingSpot {
         uint256 price;
         // string availabilityDate; pas de date pour le MVP - on assume que la réservation se fait de 8h à 18h
         bool isRegistered;
         bool isAvailable;
+        Coordinates coordinate;
     }
 
     ParkingSpot[] public ParkingSpots;
 
     // all parkings
-    mapping(address => ParkingSpot) Parkings;
+    mapping(address => ParkingSpot) public Parkings;
 
     //driverAddress => parkingOwnerAddress
-    mapping(address => address) BookedParkings;
+    mapping(address => address) public BookedParkings;
 
     mapping(address => uint256) private _balances;
 
     //available parkings
-    mapping(address => ParkingSpot) AvailableParkingOffers;
+    mapping(address => ParkingSpot) public AvailableParkingOffers;
 
     function registerParking(uint256 _price) external {
         require(!Parkings[msg.sender].isRegistered, "ParkingSpot already registered");
@@ -38,8 +44,8 @@ contract ParkT is Ownable {
     }
 
     function addParkingSpot(address _parkingSpotAddress, uint256 _price) internal {
-        Parkings[_parkingSpotAddress] = ParkingSpot({price: _price, isRegistered: true, isAvailable: true});
-        // ajout du parking dans AvailableParkingOffers
+        Parkings[_parkingSpotAddress] = ParkingSpot({price: _price, isRegistered: true, isAvailable: true, coordinate: Coordinates({x: 100, y: 100})});
+        AvailableParkingOffers[_parkingSpotAddress] = Parkings[_parkingSpotAddress];
         ParkingSpots.push(Parkings[_parkingSpotAddress]);
     }
 
@@ -51,7 +57,7 @@ contract ParkT is Ownable {
         addBookedParkingSpot(msg.sender, _parkingSpotAddress);
         emit LogParkingBookedPayment(msg.sender);
         updateParkingSpotAvailability(_parkingSpotAddress, false);
-        // delete du parking dans AvailableParkingOffers
+        delete AvailableParkingOffers[_parkingSpotAddress];
     }
 
     function addBookedParkingSpot(address _driverAddress, address _parkingSpotAddress) internal {
@@ -66,6 +72,9 @@ contract ParkT is Ownable {
         Parkings[_parkingSpotAddress].isAvailable = isAvailable;
     }
 
-    // ajout coordonnnée struct parking (comment on les ajoute côté front)
-
+    function releaseParkingSpot(address _parkingSpotAddress) public {
+        require(Parkings[_parkingSpotAddress].isRegistered, "Unknow parking spot");
+        updateParkingSpotAvailability(_parkingSpotAddress, true);
+        // TODO Paiement au propriétaire
+    }
 }
