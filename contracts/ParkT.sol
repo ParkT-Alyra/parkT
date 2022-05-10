@@ -75,6 +75,7 @@ contract ParkT is Ownable {
     function releaseParkingSpot(address _parkingSpotAddress) public {
         require(Parkings[_parkingSpotAddress].isRegistered, "Unknow parking spot");
         updateParkingSpotAvailability(_parkingSpotAddress, true);
+        delete BookedParkings[msg.sender];
         // TODO Paiement au propriétaire
     }
 }

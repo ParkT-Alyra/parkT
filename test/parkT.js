@@ -28,7 +28,7 @@ contract("parkT", accounts => {
         );
     });
 
-    xit("...should book a parking by a driver", async () => {
+    it("...should book a parking by a driver", async () => {
         await expectRevert(
             parkTInstance.bookParkingSpot(accounts[2], { from: accounts[1], value: 10 }),
             'Unknow parking spot',
