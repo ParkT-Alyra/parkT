@@ -8,6 +8,7 @@ contract ParkT is Ownable {
 
     // events
     event LogParkingBookedPayment(address driverAddress);
+    event LogParkingRelease(address ownerBooked);
 
     // function modifiers
 
@@ -76,6 +77,7 @@ contract ParkT is Ownable {
         require(Parkings[_parkingSpotAddress].isRegistered, "Unknow parking spot");
         updateParkingSpotAvailability(_parkingSpotAddress, true);
         delete BookedParkings[msg.sender];
+        emit LogParkingRelease(_parkingSpotAddress);
         // TODO Paiement au propriétaire
     }
 }
