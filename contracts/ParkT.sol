@@ -3,12 +3,14 @@ pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ParkT is Ownable {
+contract ParkT is Ownable { //parkTBooking + 1 contrat token
     // state variables
+    uint256 parkingId;
 
     // events
-    event LogParkingBookedPayment(address driverAddress);
-    event LogParkingRelease(address ownerBooked);
+    event ParkingRegistered(uint parkingId);
+    event ParkingBooked(uint parkingId);
+    event ParkingReleased(uint parkingId);
 
     // function modifiers
 
@@ -18,66 +20,66 @@ contract ParkT is Ownable {
         uint256 y;
     }
 
-    struct ParkingSpot {
-        uint256 price;
-        // string availabilityDate; pas de date pour le MVP - on assume que la réservation se fait de 8h à 18h
-        bool isRegistered;
-        bool isAvailable;
+    struct Parking {
+        address payable owner;
+        uint256 priceBySecond; // à la seconde + 10* 60*60 86400 token + deposit mise en fourriere
+        uint256 deposit; // à la seconde + 10* 60*60 86400 token + deposit mise en fourriere
+        uint16 postalCode; // getParkingByPostalCode 06550
         Coordinates coordinate;
     }
 
-    ParkingSpot[] public ParkingSpots;
+    struct Booking {
+        address payable driver;
+        uint256 timestamp;
+        uint256 requiredAmount;
+    }
 
     // all parkings
-    mapping(address => ParkingSpot) public Parkings;
+    mapping(uint => Parking) public parkingById;
+    mapping(uint => Booking) public bookingByParkingId;
+    // mapping parking by postalcode  idParking => po
 
-    //driverAddress => parkingOwnerAddress
-    mapping(address => address) public BookedParkings;
-
-    mapping(address => uint256) private _balances;
-
-    //available parkings
-    mapping(address => ParkingSpot) public AvailableParkingOffers;
-
-    function registerParking(uint256 _price) external {
-        require(!Parkings[msg.sender].isRegistered, "ParkingSpot already registered");
-        addParkingSpot(msg.sender, _price);
+    function registerParking(uint256 _parkingId, uint256 _price, uint256 _deposit, uint16 _postalCode, Coordinates memory _coordinate) external {
+        parkingById[_parkingId] = Parking(payable(msg.sender), _price, _deposit, _postalCode, _coordinate);
+        emit ParkingRegistered(_parkingId);
     }
 
-    function addParkingSpot(address _parkingSpotAddress, uint256 _price) internal {
-        Parkings[_parkingSpotAddress] = ParkingSpot({price: _price, isRegistered: true, isAvailable: true, coordinate: Coordinates({x: 100, y: 100})});
-        AvailableParkingOffers[_parkingSpotAddress] = Parkings[_parkingSpotAddress];
-        ParkingSpots.push(Parkings[_parkingSpotAddress]);
+    function bookParking(uint _parkingId) payable public {
+        Booking memory booking = bookingByParkingId[_parkingId];
+        require(booking.timestamp == 0,  "Not available");
+
+        // vérification des fonds
+        Parking memory parking = parkingById[_parkingId];
+        uint dailyPrice = parking.priceBySecond * 1 days + parking.deposit;
+        uint minRequireDemand = dailyPrice + parking.deposit;
+        require (msg.value == minRequireDemand,  "Insufficient funds");
+
+        // mise à jour de la Blockchain
+        booking.timestamp = block.timestamp;
+        booking.driver = payable(msg.sender);
+
+        emit ParkingBooked(_parkingId);
     }
 
-    function bookParkingSpot(address _parkingSpotAddress) payable public {
-        require(Parkings[_parkingSpotAddress].isRegistered, "Unknow parking spot");
-        require(Parkings[_parkingSpotAddress].isAvailable, "Not available");
-        require(msg.value >= Parkings[_parkingSpotAddress].price, "Insufficient funds");
-        _balances[msg.sender] += msg.value;
-        addBookedParkingSpot(msg.sender, _parkingSpotAddress);
-        emit LogParkingBookedPayment(msg.sender);
-        updateParkingSpotAvailability(_parkingSpotAddress, false);
-        delete AvailableParkingOffers[_parkingSpotAddress];
-    }
 
-    function addBookedParkingSpot(address _driverAddress, address _parkingSpotAddress) internal {
-        BookedParkings[_driverAddress] = _parkingSpotAddress;
-    }
+    function releaseParking(uint _parkingId) public {
+        Booking memory booking = bookingByParkingId[_parkingId];
 
-    function getParkingBalance(address _parkingSpotAddress) public view returns (uint256) {
-        return _balances[_parkingSpotAddress];
-    }
+        require(booking.driver == msg.sender, "Driver not booker");
 
-    function updateParkingSpotAvailability(address _parkingSpotAddress, bool isAvailable) internal {
-        Parkings[_parkingSpotAddress].isAvailable = isAvailable;
-    }
+        uint256 delay = block.timestamp - booking.timestamp;
+        Parking memory parking = parkingById[_parkingId];
 
-    function releaseParkingSpot(address _parkingSpotAddress) public {
-        require(Parkings[_parkingSpotAddress].isRegistered, "Unknow parking spot");
-        updateParkingSpotAvailability(_parkingSpotAddress, true);
-        delete BookedParkings[msg.sender];
-        emit LogParkingRelease(_parkingSpotAddress);
-        // TODO Paiement au propriétaire
+        // paiement au propriétaire
+        uint256 amount = parking.priceBySecond * delay;
+        parking.owner.transfer(amount);
+
+        // mise à jour de la Blockchain
+        uint256 driverRefund = booking.requiredAmount - amount;
+        booking.timestamp = 0;
+        booking.driver = payable(address(0));
+        payable(msg.sender).transfer(driverRefund);
+
+        emit ParkingReleased(_parkingId);
     }
 }
