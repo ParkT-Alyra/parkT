@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.13;
+pragma solidity 0.8.14;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -8,9 +8,9 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     uint256 parkingId;
 
     // events
-    event ParkingRegistered(uint parkingId);
-    event ParkingBooked(uint parkingId);
-    event ParkingReleased(uint parkingId);
+    event ParkingRegistered(uint256 parkingId);
+    event ParkingBooked(uint256 parkingId);
+    event ParkingReleased(uint256 parkingId);
 
     // function modifiers
 
@@ -39,9 +39,14 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     mapping(uint => Booking) public bookingByParkingId;
     // mapping parking by postalcode  idParking => po
 
-    function registerParking(uint256 _parkingId, uint256 _price, uint256 _deposit, uint16 _postalCode, Coordinates memory _coordinate) external {
-        parkingById[_parkingId] = Parking(payable(msg.sender), _price, _deposit, _postalCode, _coordinate);
-        emit ParkingRegistered(_parkingId);
+    function getParkingId() public view returns (uint256) {
+        return parkingId;
+    }
+
+    function registerParking(uint256 _price, uint256 _deposit, uint16 _postalCode, Coordinates memory _coordinate) external {
+        parkingById[parkingId] = Parking(payable(msg.sender), _price, _deposit, _postalCode, _coordinate);
+        emit ParkingRegistered(parkingId);
+        parkingId += 1;
     }
 
     function bookParking(uint _parkingId) payable public {
@@ -50,11 +55,12 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
 
         // vérification des fonds
         Parking memory parking = parkingById[_parkingId];
-        uint dailyPrice = parking.priceBySecond * 1 days + parking.deposit;
+        uint dailyPrice = parking.priceBySecond * 1 days;
         uint minRequireDemand = dailyPrice + parking.deposit;
-        require (msg.value == minRequireDemand,  "Insufficient funds");
+        require(msg.value == minRequireDemand, "Insufficient funds");
 
         // mise à jour de la Blockchain
+        booking.requiredAmount = minRequireDemand;
         booking.timestamp = block.timestamp;
         booking.driver = payable(msg.sender);
 
@@ -78,6 +84,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         uint256 driverRefund = booking.requiredAmount - amount;
         booking.timestamp = 0;
         booking.driver = payable(address(0));
+        booking.requiredAmount = 0;
         payable(msg.sender).transfer(driverRefund);
 
         emit ParkingReleased(_parkingId);
