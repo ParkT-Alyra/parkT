@@ -9,16 +9,18 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
 
     /// @notice Emitted when a Parking is register
     /// @dev Emitted when registerParking called
-    /// @param id of the parking
+    /// @param parkingId ID of the parking
     event ParkingRegistered(uint256 parkingId);
     /// @notice Emitted when a Parking is booked
     /// @dev Emitted when bookParking called
-    /// @param id of the parking
+    /// @param parkingId ID of the parking
     event ParkingBooked(uint256 parkingId);
     /// @notice Emitted when a Parking is released
     /// @dev Emitted when releaseParking called
-    /// @param id of the parking
-    event ParkingReleased(uint256 parkingId);
+    /// @param parkingId ID of the parking
+    /// @param payedAmount amount paid to the parking owner
+    /// @param refundAmount amount refund to the driver
+    event ParkingReleased(uint256 parkingId, uint256 payedAmount, uint256 refundAmount);
 
     // function modifiers
 
@@ -87,7 +89,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         booking.timestamp = block.timestamp;
         booking.driver = payable(msg.sender);
 
-        // mise à jour de la Blockchain
+        // update Blockchain
         bookingByParkingId[_parkingId] = booking;
 
         emit ParkingBooked(_parkingId);
@@ -106,16 +108,16 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         // paiement au propriétaire
         uint256 amount = parking.priceBySecond * delay;
         parking.owner.transfer(amount);
-
+// TODO check reentrancy
         uint256 driverRefund = booking.requiredAmount - amount;
         booking.timestamp = 0;
         booking.driver = payable(address(0));
         booking.requiredAmount = 0;
 
-        // mise à jour de la Blockchain
+        // update Blockchain
         bookingByParkingId[_parkingId] = booking;
         payable(msg.sender).transfer(driverRefund);
 
-        emit ParkingReleased(_parkingId);
+        emit ParkingReleased(_parkingId, amount, driverRefund);
     }
 }

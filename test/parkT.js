@@ -1,7 +1,6 @@
 const { BN, expectEvent, expectRevert} = require('@openzeppelin/test-helpers');
 const ParkT = artifacts.require("./ParkT.sol");
 
-
 contract("parkT", accounts => {
 
     let parkTInstance, spot, registerParking;
@@ -32,13 +31,6 @@ contract("parkT", accounts => {
     });
 
     describe("bookParking", () => {
-        let bookParking, bookingByParkingId;
-        before(async () => {
-            // bookParking = await parkTInstance.bookParking(0, { from: accounts[1], value: 86650 })
-        });
-        beforeEach(async () => {
-            bookedParking = await parkTInstance.bookingByParkingId(0);
-        })
         it("...should not book a parking if is not register", async () => {
             await expectRevert(
                 parkTInstance.bookParking(1, { from: accounts[1], value: 86650 }),
@@ -52,8 +44,8 @@ contract("parkT", accounts => {
             );
         });
         it("...should book an empty parking", async () => {
-            bookParking = await parkTInstance.bookParking(0, { from: accounts[1], value: 86650 })
-            bookingByParkingId = await parkTInstance.bookingByParkingId(0);
+            const bookParking = await parkTInstance.bookParking(0, { from: accounts[1], value: 86650 })
+            const bookingByParkingId = await parkTInstance.bookingByParkingId(0);
             assert.notEqual(bookingByParkingId.timestamp, new BN(0), "timestamp updated")
             assert.equal(bookingByParkingId.driver, accounts[1], "driver updated")
             assert.equal(bookingByParkingId.requiredAmount, 86650, "amount updated")
@@ -88,10 +80,9 @@ contract("parkT", accounts => {
 
             //assert transfer
             expectEvent(releaseParking, "ParkingReleased", {
-                parkingId: new BN(0)
+                parkingId: new BN(0), payedAmount: 4, refundAmount: 86646
             });
 
-            // check transfer
         });
 
     })
