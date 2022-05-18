@@ -7,19 +7,30 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     // state variables
     uint256 parkingId;
 
-    // events
+    /// @notice Emitted when a Parking is register
+    /// @dev Emitted when registerParking called
+    /// @param id of the parking
     event ParkingRegistered(uint256 parkingId);
+    /// @notice Emitted when a Parking is booked
+    /// @dev Emitted when bookParking called
+    /// @param id of the parking
     event ParkingBooked(uint256 parkingId);
+    /// @notice Emitted when a Parking is released
+    /// @dev Emitted when releaseParking called
+    /// @param id of the parking
     event ParkingReleased(uint256 parkingId);
 
     // function modifiers
 
-    // struct, arrays, mapping or enums
+    /// @notice coordinates of the parking
+    /// @dev abscissa and ordinate
     struct Coordinates {
         uint256 x;
         uint256 y;
     }
 
+    /// @notice struct for parking registration
+    /// @dev Parking is the main struct representing a spot for a car
     struct Parking {
         address payable owner;
         uint256 priceBySecond; // à la seconde + 10* 60*60 86400 token + deposit mise en fourriere
@@ -28,6 +39,8 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         Coordinates coordinate;
     }
 
+    /// @notice struct for booking reservation
+    /// @dev Booking is the struct representing a booking by a driver
     struct Booking {
         address payable driver;
         uint256 timestamp;
@@ -35,39 +48,53 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     }
 
     // all parkings
+    /// @notice list of registered parking by id
     mapping(uint => Parking) public parkingById;
+    /// @notice list of parking booked by id
     mapping(uint => Booking) public bookingByParkingId;
-    // mapping parking by postalcode  idParking => po
+    // @TODO mapping parking by postalcode  idParking => po
 
     function getParkingId() public view returns (uint256) {
         return parkingId;
     }
 
+    /// @notice register a parking with all information
+    /// @param _price is the price for one second
+    /// @param _deposit is the price collateral in case of any problem
+    /// @param _postalCode is for the parking display
+    /// @param _coordinate is for the coordinate of the parking
     function registerParking(uint256 _price, uint256 _deposit, uint16 _postalCode, Coordinates memory _coordinate) external {
         parkingById[parkingId] = Parking(payable(msg.sender), _price, _deposit, _postalCode, _coordinate);
         emit ParkingRegistered(parkingId);
         parkingId += 1;
     }
 
+    /// @notice book a parking by a driver
+    /// @param _parkingId id of the parking wanted to book by the driver
     function bookParking(uint _parkingId) payable public {
+        Parking memory parking = parkingById[_parkingId];
+        require(parking.owner != address(0),  "Parking not register");
+
         Booking memory booking = bookingByParkingId[_parkingId];
         require(booking.timestamp == 0,  "Not available");
 
         // vérification des fonds
-        Parking memory parking = parkingById[_parkingId];
         uint dailyPrice = parking.priceBySecond * 1 days;
         uint minRequireDemand = dailyPrice + parking.deposit;
         require(msg.value == minRequireDemand, "Insufficient funds");
 
-        // mise à jour de la Blockchain
         booking.requiredAmount = minRequireDemand;
         booking.timestamp = block.timestamp;
         booking.driver = payable(msg.sender);
 
+        // mise à jour de la Blockchain
+        bookingByParkingId[_parkingId] = booking;
+
         emit ParkingBooked(_parkingId);
     }
 
-
+    /// @notice release a parking by a driver
+    /// @param _parkingId id of the parking wanted to release by the driver
     function releaseParking(uint _parkingId) public {
         Booking memory booking = bookingByParkingId[_parkingId];
 
@@ -80,11 +107,13 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         uint256 amount = parking.priceBySecond * delay;
         parking.owner.transfer(amount);
 
-        // mise à jour de la Blockchain
         uint256 driverRefund = booking.requiredAmount - amount;
         booking.timestamp = 0;
         booking.driver = payable(address(0));
         booking.requiredAmount = 0;
+
+        // mise à jour de la Blockchain
+        bookingByParkingId[_parkingId] = booking;
         payable(msg.sender).transfer(driverRefund);
 
         emit ParkingReleased(_parkingId);

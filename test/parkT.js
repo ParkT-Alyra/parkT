@@ -14,51 +14,59 @@ contract("parkT", accounts => {
     });
 
     describe("registerParking", () => {
-        it("...parking should have a price", async () => {
+        it("...should have a price and all information", async () => {
             // appel de la méthode d'enregistrement d'un parking
             assert.equal(spot.priceBySecond, 1, "The parking cost 1 token by second");
             assert.equal(spot.deposit, 250, "The deposit is 250");
-            assert.equal(spot.owner, accounts[0], "The deposit is 250");
+            assert.equal(spot.owner, accounts[0], "owner account");
             expectEvent(registerParking, "ParkingRegistered", {
                 parkingId: new BN(0)
             });
             assert.equal(await parkTInstance.getParkingId(), 1, "parkingId equal 1");
         });
-        it("... should revert for unknown parking", async () => {
+        it("...should revert for unknown parking", async () => {
             // appel de la méthode d'enregistrement d'un parking
             const emptySpot = await parkTInstance.parkingById(1);
             assert.equal(emptySpot.owner, 0, 'emptyParking');
         });
     });
 
-    describe.only("bookParking", () => {
-        let bookParking
+    describe("bookParking", () => {
+        let bookParking, bookingByParkingId;
         before(async () => {
-            bookParking = await parkTInstance.bookParking(0, { from: accounts[1], value: 86650 })
+            // bookParking = await parkTInstance.bookParking(0, { from: accounts[1], value: 86650 })
         });
-        it("...should book an empty parking", async () => {
-            const bookedParking = await parkTInstance.bookingByParkingId(0);
-            console.log(bookedParking)
-            expectEvent(bookParking, "ParkingBooked", {
-                parkingId: new BN(0)
-            });
-            assert.notEqual(bookedParking.timestamp, new BN(0), "timestamp updated")
-            assert.equal(bookedParking.driver, accounts[1], "driver updated")
-            assert.equal(bookedParking.minRequireDemand, 86650, "amount updated")
+        beforeEach(async () => {
+            bookedParking = await parkTInstance.bookingByParkingId(0);
+        })
+        it("...should not book a parking if is not register", async () => {
+            await expectRevert(
+                parkTInstance.bookParking(1, { from: accounts[1], value: 86650 }),
+                'Parking not register',
+            );
         });
         it("...should not book a parking for insufficient funds", async () => {
             await expectRevert(
-                parkTInstance.bookParking(1, { from: accounts[1], value: 200 }),
+                parkTInstance.bookParking(0, { from: accounts[1], value: 200 }),
                 'Insufficient funds',
             );
         });
+        it("...should book an empty parking", async () => {
+            bookParking = await parkTInstance.bookParking(0, { from: accounts[1], value: 86650 })
+            bookingByParkingId = await parkTInstance.bookingByParkingId(0);
+            assert.notEqual(bookingByParkingId.timestamp, new BN(0), "timestamp updated")
+            assert.equal(bookingByParkingId.driver, accounts[1], "driver updated")
+            assert.equal(bookingByParkingId.requiredAmount, 86650, "amount updated")
+            expectEvent(bookParking, "ParkingBooked", {
+                parkingId: new BN(0)
+            });
+        });
         it("...should not book a parking if not empty", async () => {
             await expectRevert(
-                parkTInstance.bookParking(0, { from: accounts[1], value: 200 }),
+                parkTInstance.bookParking(0, { from: accounts[1], value: 86650 }),
                 'Not available',
             );
         });
-
     });
 
     describe("releaseParking", () => {
@@ -80,8 +88,10 @@ contract("parkT", accounts => {
 
             //assert transfer
             expectEvent(releaseParking, "ParkingReleased", {
-                _parkingId: new BN(0)
+                parkingId: new BN(0)
             });
+
+            // check transfer
         });
 
     })
