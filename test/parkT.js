@@ -18,6 +18,7 @@ contract("parkT", accounts => {
             assert.equal(spot.priceBySecond, 1, "The parking cost 1 token by second");
             assert.equal(spot.deposit, 250, "The deposit is 250");
             assert.equal(spot.owner, accounts[0], "owner account");
+            assert.equal(spot.balance, 0, "balance O");
             expectEvent(registerParking, "ParkingRegistered", {
                 parkingId: new BN(0)
             });
@@ -78,12 +79,33 @@ contract("parkT", accounts => {
             assert.equal(bookedParking.driver, 0, "driver reset");
             assert.equal(bookedParking.requiredAmount, 0, "amount reset");
 
-            //assert transfer
             expectEvent(releaseParking, "ParkingReleased", {
-                parkingId: new BN(0), payedAmount: 4, refundAmount: 86646
+                parkingId: new BN(0)
             });
-
         });
 
+    })
+
+    describe("withdraw", () => {
+        it("...should revert if is not the owner of the parking", async () => {
+            spot.balance = 500;
+            await expectRevert(
+                parkTInstance.withdraw(0, {from: accounts[1]}),
+                'revert',
+            );
+        });
+
+        it("...should transfer funds and reset balance", async () => {
+            let parkingById = await parkTInstance.parkingById(0);
+            parkingById.balance = new BN(500);
+            assert.equal(parkingById.balance, 500, "test balance");
+
+            parkingById = await parkTInstance.parkingById(0);
+            const payedAmount = await parkTInstance.withdraw(0, {from: accounts[0]})
+
+            expectEvent(payedAmount, "DonePayment");
+
+            assert.equal(parkingById.balance, 0, "reset balance");
+        });
     })
 });

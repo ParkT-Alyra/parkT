@@ -21,6 +21,9 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     /// @param payedAmount amount paid to the parking owner
     /// @param refundAmount amount refund to the driver
     event ParkingReleased(uint256 parkingId, uint256 payedAmount, uint256 refundAmount);
+    /// @notice Emitted when withdraw is done by the owner
+    /// @param amount amount received by the owner
+    event DonePayment(uint256 amount);
 
     // function modifiers
 
@@ -35,9 +38,10 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     /// @dev Parking is the main struct representing a spot for a car
     struct Parking {
         address payable owner;
-        uint256 priceBySecond; // à la seconde + 10* 60*60 86400 token + deposit mise en fourriere
-        uint256 deposit; // à la seconde + 10* 60*60 86400 token + deposit mise en fourriere
-        uint16 postalCode; // getParkingByPostalCode 06550
+        uint256 priceBySecond;
+        uint256 deposit;
+        uint256 balance;
+        uint16 postalCode;
         Coordinates coordinate;
     }
 
@@ -56,6 +60,12 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     mapping(uint => Booking) public bookingByParkingId;
     // @TODO mapping parking by postalcode  idParking => po
 
+    /// @notice check if the withdraw is from the parking owner
+    modifier isParkingOwner(uint _parkingId) {
+        require(parkingById[_parkingId].owner == msg.sender, "not owner");
+        _;
+    }
+
     function getParkingId() public view returns (uint256) {
         return parkingId;
     }
@@ -66,7 +76,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     /// @param _postalCode is for the parking display
     /// @param _coordinate is for the coordinate of the parking
     function registerParking(uint256 _price, uint256 _deposit, uint16 _postalCode, Coordinates memory _coordinate) external {
-        parkingById[parkingId] = Parking(payable(msg.sender), _price, _deposit, _postalCode, _coordinate);
+        parkingById[parkingId] = Parking(payable(msg.sender), _price, _deposit, 0, _postalCode, _coordinate);
         emit ParkingRegistered(parkingId);
         parkingId += 1;
     }
@@ -107,8 +117,8 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
 
         // paiement au propriétaire
         uint256 amount = parking.priceBySecond * delay;
-        parking.owner.transfer(amount);
-// TODO check reentrancy
+        parking.balance += amount;
+
         uint256 driverRefund = booking.requiredAmount - amount;
         booking.timestamp = 0;
         booking.driver = payable(address(0));
@@ -119,5 +129,15 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         payable(msg.sender).transfer(driverRefund);
 
         emit ParkingReleased(_parkingId, amount, driverRefund);
+    }
+
+    /// @notice withdraw for the parking owner
+    /// @param _parkingId id of the parking wanted to get balance by the owner
+    function withdraw(uint _parkingId) public isParkingOwner(_parkingId) {
+        uint amount = parkingById[_parkingId].balance;
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        require(success, "Transaction failed"); //Require the transaction success or revert
+        emit DonePayment(amount);
+        parkingById[_parkingId].balance = 0;
     }
 }
