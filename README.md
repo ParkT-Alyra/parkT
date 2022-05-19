@@ -28,7 +28,12 @@ Avant de cloner le repository, assurez-vous d'avoir installé :
 	Mise à jour de la réputation du Conducteur
 	Mise à jour de la disponibilité de la place (IOT + réservé ou non reservé)
 
-## Running the dapp:
+
+## Pour démarrer <a name="getting-started"></a>
+
+Cloner le repo : 
+
+`git clone https://github.com/KevinColo/parkT.git`
 
 Une fois le repo cloné :
 	
@@ -40,4 +45,7 @@ Ensuite, déplacez-vous dans le répertoire client. Dans votre terminal/ligne de
 
 	truffle test
 	
-To be continue ...
+## Running the dapp:
+
+	npm start
+
