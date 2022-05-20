@@ -47,3 +47,9 @@ Nous avons pour le moment un seul contrat, mais s'il est nécessaire de déploye
 vigilants au gas consommé sur les différents contrats
 
 ## Check-effects-interaction
+
+## Low level calls
+
+## Guard conditions
+
+## Gas costs
