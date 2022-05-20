@@ -55,17 +55,22 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
 
     // all parkings
     /// @notice list of registered parking by id
+    /// @dev use for registering all the parking
     mapping(uint => Parking) public parkingById;
     /// @notice list of parking booked by id
+    /// @dev use for registering all booking and display available parking
     mapping(uint => Booking) public bookingByParkingId;
-    // @TODO mapping parking by postalcode  idParking => po
+    // @TODO mapping parking by postalcode  idParking => postcalCode
 
     /// @notice check if the withdraw is from the parking owner
+    /// @dev check if the transaction signer is the owner of the parking
     modifier isParkingOwner(uint _parkingId) {
         require(parkingById[_parkingId].owner == msg.sender, "not owner");
         _;
     }
 
+    ///@notice getter for the current parking ID
+    ///@dev parkingId less one is the number of the parking registering
     function getParkingId() public view returns (uint256) {
         return parkingId;
     }
@@ -75,6 +80,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     /// @param _deposit is the price collateral in case of any problem
     /// @param _postalCode is for the parking display
     /// @param _coordinate is for the coordinate of the parking
+    /// @dev simply add an entry in the mapping parkingById for listing all parking
     function registerParking(uint256 _price, uint256 _deposit, uint16 _postalCode, Coordinates memory _coordinate) external {
         parkingById[parkingId] = Parking(payable(msg.sender), _price, _deposit, 0, _postalCode, _coordinate);
         emit ParkingRegistered(parkingId);
@@ -83,7 +89,8 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
 
     /// @notice book a parking by a driver
     /// @param _parkingId id of the parking wanted to book by the driver
-    function bookParking(uint _parkingId) payable public {
+    /// @dev checks about availability and authorized the transaction - update bookingByParkingId with the booking
+    function bookParking(uint _parkingId) payable external {
         Parking memory parking = parkingById[_parkingId];
         require(parking.owner != address(0),  "Parking not register");
 
@@ -93,7 +100,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         // vérification des fonds
         uint dailyPrice = parking.priceBySecond * 1 days;
         uint minRequireDemand = dailyPrice + parking.deposit;
-        require(msg.value == minRequireDemand, "Insufficient funds");
+        require(msg.value >= minRequireDemand, "Insufficient funds");
 
         booking.requiredAmount = minRequireDemand;
         booking.timestamp = block.timestamp;
@@ -107,7 +114,9 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
 
     /// @notice release a parking by a driver
     /// @param _parkingId id of the parking wanted to release by the driver
-    function releaseParking(uint _parkingId) public {
+    /// @dev call by the IOT with the booker address
+    /// @dev save the collateral for the owner and refund the driver
+    function releaseParking(uint _parkingId) external {
         Booking memory booking = bookingByParkingId[_parkingId];
 
         require(booking.driver == msg.sender, "Driver not booker");
@@ -133,7 +142,8 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
 
     /// @notice withdraw for the parking owner
     /// @param _parkingId id of the parking wanted to get balance by the owner
-    function withdraw(uint _parkingId) public isParkingOwner(_parkingId) {
+    /// @dev avoid pull payment attack by using a function for the withdraw
+    function withdraw(uint _parkingId) external isParkingOwner(_parkingId) {
         uint amount = parkingById[_parkingId].balance;
         (bool success, ) = payable(msg.sender).call{value: amount}("");
         require(success, "Transaction failed"); //Require the transaction success or revert

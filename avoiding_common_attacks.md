@@ -1,4 +1,11 @@
 # ParkT
+    Nous avons utilisé l'analyseur de code static de Remix pour vérifier que l'ensemble des fonctionnalités est bien 
+    sécurisé. Que l'ensemble des potentielles failles est traité et corrigé si nécessaire.
+
+## Version du compilateur Pragma
+* Fixé à 0.8.14
+* On s'assure que les contrats ne seront pas accidentellement déployés en utilisant une version trop récente avec des
+vulnérabilités 
 
 ## Pull Payment :
 * Création d'une fonction de withdraw pour le propriétaire afin qu'il récupère les fonds disponibles dans le contrat
@@ -23,3 +30,20 @@ le délai des 15 sec n'est donc pas quelque chose qui puisse rendre faillible le
 
 ## Delegation des appels
 * Nous serons vigilants 
+
+## Front running
+* Nous n'avons pas de fonctionnalité nécessitant de faire une action rapide. Il n'y a donc aucune faille à ce niveau.
+
+## Force Feeding
+* La vérification de la balance en comparaison stricte peut faire dérailler, on utilise donc **>=** 
+    
+  ``require(msg.value >= minRequireDemand, "Insufficient funds");``
+
+## Oracle manipulation
+Nous n'utilisons pas d'Oracle dans le cadre de parkT
+
+## Griefing
+Nous avons pour le moment un seul contrat, mais s'il est nécessaire de déployer un second contrat, nous serons
+vigilants au gas consommé sur les différents contrats
+
+## Check-effects-interaction
