@@ -1,6 +1,12 @@
 import React, { Component } from "react";
 import ParkT from "./contracts/ParkT.json";
 import getWeb3 from "./getWeb3";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./pages/Layout";
+import Home from "./pages/Home";
+import RegisterParking from "./pages/RegisterParking";
+import Parkings from "./pages/Parkings";
+import NoPage from "./pages/NoPage";
 
 import "./App.css";
 
@@ -54,6 +60,16 @@ class App extends Component {
     }
     return (
       <div className="App">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="register-parking" element={<RegisterParking />} />
+              <Route path="parkings" element={<Parkings />} />
+              <Route path="*" element={<NoPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
         <h1>Good to Go!</h1>
         <p>Your Truffle Box is installed and ready.</p>
         <h2>Smart Contract Example</h2>
