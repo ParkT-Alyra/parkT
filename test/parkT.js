@@ -24,7 +24,7 @@ contract("parkT", accounts => {
             });
             assert.equal(await parkTInstance.getParkingId(), 1, "parkingId equal 1");
         });
-        it("...should revert for unknown parking", async () => {
+        it("...should register one parking at a time", async () => {
             // appel de la méthode d'enregistrement d'un parking
             const emptySpot = await parkTInstance.parkingById(1);
             assert.equal(emptySpot.owner, 0, 'emptyParking');
@@ -63,7 +63,7 @@ contract("parkT", accounts => {
     });
 
     describe("releaseParking", () => {
-        it("...should revert unknow parking", async () => {
+        it("...should revert if releaser is not the booker", async () => {
             await expectRevert(
                 parkTInstance.releaseParking(0, {from: accounts[2]}),
                 'Driver not booker',
