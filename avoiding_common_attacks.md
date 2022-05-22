@@ -53,3 +53,4 @@ vigilants au gas consommé sur les différents contrats
 ## Guard conditions
 
 ## Gas costs
+* Nous manipulons avec précautions les array et les mappings pour éviter des consommations de GAS trop importantes
