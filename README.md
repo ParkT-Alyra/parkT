@@ -1,6 +1,11 @@
 # ParkT
 ***Un système de reservation de parking intelligent décentralisé réalisé avec Truffle et Solidity***
 
+## Docs
+[`Avoiding_common_attacks.md`](./avoiding_common_attacks.md) — Avoiding common attacks <br>
+[`Design_pattern_desicions.md`](./design_pattern_desicions.md) — Design Pattern Desicions <br>
+[`Tests_explication.md`](./tests_explication.md) — Tests explication <br>
+[`Deployed_addresses.md`](./deployed_addresses.md) — Deployed addresses<br>
 
 ## Tools Required:
 
