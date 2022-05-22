@@ -70,7 +70,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     }
 
     ///@notice getter for the current parking ID
-    ///@dev parkingId less one is the number of the parking registering
+    ///@dev parkingId less one is the number of the parking registering - TODO use instead @openzeppelin/contracts/utils/Counters.sol
     function getParkingId() public view returns (uint256) {
         return parkingId;
     }
@@ -85,6 +85,20 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         parkingById[parkingId] = Parking(payable(msg.sender), _price, _deposit, 0, _postalCode, _coordinate);
         emit ParkingRegistered(parkingId);
         parkingId += 1;
+    }
+
+    /// @notice fetch all parkings
+    /// @dev return list of all registered parkings (TODO use of memory array building pattern https://fravoll.github.io/solidity-patterns/memory_array_building.html)
+    function fetchParkings() public view returns (Parking[] memory) {
+        uint parkingCount = getParkingId();
+
+        Parking[] memory parkings = new Parking[](parkingCount);
+        for (uint i = 0; i < parkingCount; i++) {
+            uint currentId = i + 1;
+            Parking storage currentParking = parkingById[currentId];
+            parkings[i] = currentParking;
+        }
+        return parkings;
     }
 
     /// @notice book a parking by a driver

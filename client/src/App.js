@@ -55,6 +55,14 @@ class App extends Component {
   };
 
   render() {
+    //mock parkings, à récupérer d'une requête à un tableau memory des parkings availables []
+    const parkings = [
+          { "postalCode": "06000", "priceBySecond": 10, "coordinates": {"x": 10, "y": 10} },
+          { "postalCode": "75014", "priceBySecond":  30, "coordinates": {"x": 10, "y": 10} },
+          { "postalCode": "06100", "priceBySecond":  25, "coordinates": {"x": 10, "y": 10} },
+          { "postalCode": "06200", "priceBySecond":  5,  "coordinates": {"x": 10, "y": 10} },
+          { "postalCode": "06300", "priceBySecond":  12, "coordinates": {"x": 10, "y": 10} }
+    ];
     if (!this.state.web3) {
       return <div>Loading Web3, accounts, and contract...</div>;
     }
@@ -65,7 +73,7 @@ class App extends Component {
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="register-parking" element={<RegisterParking />} />
-              <Route path="parkings" element={<Parkings />} />
+              <Route path="parkings" element={<Parkings parkings={parkings} />} />
               <Route path="*" element={<NoPage />} />
             </Route>
           </Routes>
