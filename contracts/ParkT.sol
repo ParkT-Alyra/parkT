@@ -2,10 +2,12 @@
 pragma solidity 0.8.14;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract ParkT is Ownable { //parkTBooking + 1 contrat token
     // state variables
-    uint256 parkingId;
+    using Counters for Counters.Counter;
+    Counters.Counter private _parkingIds;
 
     /// @notice Emitted when a Parking is register
     /// @dev Emitted when registerParking called
@@ -72,7 +74,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     ///@notice getter for the current parking ID
     ///@dev parkingId less one is the number of the parking registering - TODO use instead @openzeppelin/contracts/utils/Counters.sol
     function getParkingId() public view returns (uint256) {
-        return parkingId;
+        return _parkingIds.current();
     }
 
     /// @notice register a parking with all information
@@ -82,20 +84,21 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     /// @param _coordinate is for the coordinate of the parking
     /// @dev simply add an entry in the mapping parkingById for listing all parking
     function registerParking(uint256 _price, uint256 _deposit, string memory _postalCode, Coordinates memory _coordinate) external {
+        _parkingIds.increment();
+        uint parkingId = _parkingIds.current();
         parkingById[parkingId] = Parking(payable(msg.sender), _price, _deposit, 0, _postalCode, _coordinate);
         emit ParkingRegistered(parkingId);
-        parkingId += 1;
     }
 
     /// @notice fetch all parkings
-    /// @dev return list of all registered parkings (TODO use of memory array building pattern https://fravoll.github.io/solidity-patterns/memory_array_building.html)
+    /// @dev return list of all registered parkings (use of memory array building pattern https://fravoll.github.io/solidity-patterns/memory_array_building.html)
     function fetchParkings() public view returns (Parking[] memory) {
-        uint parkingCount = getParkingId();
+        uint parkingCount = _parkingIds.current();
 
         Parking[] memory parkings = new Parking[](parkingCount);
         for (uint i = 0; i < parkingCount; i++) {
             uint currentId = i + 1;
-            Parking storage currentParking = parkingById[currentId-1];
+            Parking storage currentParking = parkingById[currentId];
             parkings[i] = currentParking;
         }
         return parkings;
@@ -159,9 +162,9 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     /// @dev avoid pull payment attack by using a function for the withdraw
     function withdraw(uint _parkingId) external isParkingOwner(_parkingId) {
         uint amount = parkingById[_parkingId].balance;
+        parkingById[_parkingId].balance = 0;
         (bool success, ) = payable(msg.sender).call{value: amount}("");
         require(success, "Transaction failed"); //Require the transaction success or revert
         emit DonePayment(amount);
-        parkingById[_parkingId].balance = 0;
     }
 }

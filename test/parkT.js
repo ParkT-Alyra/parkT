@@ -10,7 +10,7 @@ contract("parkT", accounts => {
         registerParking = await parkTInstance.registerParking(1, 250, "16580", {x: 200, y: 500}, { from: accounts[0] });
     })
     beforeEach(async () => {
-        parking = await parkTInstance.parkingById(0);
+        parking = await parkTInstance.parkingById(1);
     });
 
     describe("registerParking", () => {
@@ -21,19 +21,19 @@ contract("parkT", accounts => {
             assert.equal(parking.owner, accounts[0], "owner account");
             assert.equal(parking.balance, 0, "balance O");
             expectEvent(registerParking, "ParkingRegistered", {
-                parkingId: new BN(0)
+                parkingId: new BN(1)
             });
             assert.equal(await parkTInstance.getParkingId(), 1, "parkingId equal 1");
         });
         it("...should register one parking at a time", async () => {
             // appel de la méthode d'enregistrement d'un parking
-            const emptyParking = await parkTInstance.parkingById(1);
+            const emptyParking = await parkTInstance.parkingById(2);
             assert.equal(emptyParking.owner, 0, 'emptyParking');
         });
     });
 
     describe("fetchParkings", () => {
-        it.only("...should fetch and returns registered parkings", async () => {
+        it("...should fetch and returns registered parkings", async () => {
             await parkTInstance.registerParking(5, 250, "75014", {x: 200, y: 500}, { from: accounts[1] });
             await parkTInstance.registerParking(10, 255, "06000", {x: 200, y: 500}, { from: accounts[2] });
             const parkings = await parkTInstance.fetchParkings();
@@ -49,29 +49,29 @@ contract("parkT", accounts => {
     describe("bookParking", () => {
         it("...should not book a parking if is not register", async () => {
             await expectRevert(
-                parkTInstance.bookParking(1, { from: accounts[1], value: 86650 }),
+                parkTInstance.bookParking(5, { from: accounts[1], value: 86650 }),
                 'Parking not register',
             );
         });
         it("...should not book a parking for insufficient funds", async () => {
             await expectRevert(
-                parkTInstance.bookParking(0, { from: accounts[1], value: 200 }),
+                parkTInstance.bookParking(1, { from: accounts[1], value: 200 }),
                 'Insufficient funds',
             );
         });
         it("...should book an empty parking", async () => {
-            const bookParking = await parkTInstance.bookParking(0, { from: accounts[1], value: 86650 })
-            const bookingByParkingId = await parkTInstance.bookingByParkingId(0);
-            assert.notEqual(bookingByParkingId.timestamp, new BN(0), "timestamp updated")
+            const bookParking = await parkTInstance.bookParking(1, { from: accounts[1], value: 86650 })
+            const bookingByParkingId = await parkTInstance.bookingByParkingId(1);
+            assert.notEqual(bookingByParkingId.timestamp, new BN(1), "timestamp updated")
             assert.equal(bookingByParkingId.driver, accounts[1], "driver updated")
             assert.equal(bookingByParkingId.requiredAmount, 86650, "amount updated")
             expectEvent(bookParking, "ParkingBooked", {
-                parkingId: new BN(0)
+                parkingId: new BN(1)
             });
         });
         it("...should not book a parking if not empty", async () => {
             await expectRevert(
-                parkTInstance.bookParking(0, { from: accounts[1], value: 86650 }),
+                parkTInstance.bookParking(1, { from: accounts[1], value: 86650 }),
                 'Not available',
             );
         });
@@ -86,16 +86,16 @@ contract("parkT", accounts => {
         });
 
         it("...should release a parking", async () => {
-            const releaseParking = await parkTInstance.releaseParking(0, {from: accounts[1]});
+            const releaseParking = await parkTInstance.releaseParking(1, {from: accounts[1]});
 
-            const bookedParking = await parkTInstance.bookingByParkingId(0);
+            const bookedParking = await parkTInstance.bookingByParkingId(1);
 
             assert.equal(bookedParking.timestamp, 0, "timestamp reset");
             assert.equal(bookedParking.driver, 0, "driver reset");
             assert.equal(bookedParking.requiredAmount, 0, "amount reset");
 
             expectEvent(releaseParking, "ParkingReleased", {
-                parkingId: new BN(0)
+                parkingId: new BN(1)
             });
         });
 
@@ -111,16 +111,17 @@ contract("parkT", accounts => {
         });
 
         it("...should transfer funds and reset balance", async () => {
-            let parkingById = await parkTInstance.parkingById(0);
+            let parkingById = await parkTInstance.parkingById(1);
             parkingById.balance = new BN(500);
             assert.equal(parkingById.balance, 500, "test balance");
 
-            const payedAmount = await parkTInstance.withdraw(0, {from: accounts[0]})
+            const payedAmount = await parkTInstance.withdraw(1, {from: accounts[0]});
 
-            expectEvent(payedAmount, "DonePayment");
-            parkingById = await parkTInstance.parkingById(0);
+            parkingById = await parkTInstance.parkingById(1);
 
-            assert.equal(parkingById.balance, 0, "reset balance");
+            expectEvent(payedAmount, "DonePayment", {
+                amount : new BN(0)
+            });
         });
     })
 });
