@@ -1,4 +1,5 @@
 const { BN, expectEvent, expectRevert} = require('@openzeppelin/test-helpers');
+const { expect } = require('chai');
 const ParkT = artifacts.require("./ParkT.sol");
 
 contract("parkT", accounts => {
@@ -6,7 +7,7 @@ contract("parkT", accounts => {
     let parkTInstance, parking, registerParking;
     before(async () => {
         parkTInstance = await ParkT.deployed();
-        registerParking = await parkTInstance.registerParking(1, 250, 16580, {x: 200, y: 500}, { from: accounts[0] });
+        registerParking = await parkTInstance.registerParking(1, 250, "16580", {x: 200, y: 500}, { from: accounts[0] });
     })
     beforeEach(async () => {
         parking = await parkTInstance.parkingById(0);
@@ -26,8 +27,22 @@ contract("parkT", accounts => {
         });
         it("...should register one parking at a time", async () => {
             // appel de la méthode d'enregistrement d'un parking
-            const emptySpot = await parkTInstance.parkingById(1);
-            assert.equal(emptySpot.owner, 0, 'emptyParking');
+            const emptyParking = await parkTInstance.parkingById(1);
+            assert.equal(emptyParking.owner, 0, 'emptyParking');
+        });
+    });
+
+    describe("fetchParkings", () => {
+        it.only("...should fetch and returns registered parkings", async () => {
+            await parkTInstance.registerParking(5, 250, "75014", {x: 200, y: 500}, { from: accounts[1] });
+            await parkTInstance.registerParking(10, 255, "06000", {x: 200, y: 500}, { from: accounts[2] });
+            const parkings = await parkTInstance.fetchParkings();
+            expect(parkings[0].priceBySecond).to.be.bignumber.equal(new BN(1));
+            expect(parkings[0].postalCode).to.be.equal("16580");
+            expect(parkings[1].priceBySecond).to.be.bignumber.equal(new BN(5));
+            expect(parkings[1].postalCode).to.be.equal("75014");
+            expect(parkings[2].priceBySecond).to.be.bignumber.equal(new BN(10));
+            expect(parkings[2].postalCode).to.be.equal("06000");
         });
     });
 
