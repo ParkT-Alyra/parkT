@@ -41,7 +41,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         uint256 priceBySecond;
         uint256 deposit;
         uint256 balance;
-        uint16 postalCode;
+        string postalCode;
         Coordinates coordinate;
     }
 
@@ -81,7 +81,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     /// @param _postalCode is for the parking display
     /// @param _coordinate is for the coordinate of the parking
     /// @dev simply add an entry in the mapping parkingById for listing all parking
-    function registerParking(uint256 _price, uint256 _deposit, uint16 _postalCode, Coordinates memory _coordinate) external {
+    function registerParking(uint256 _price, uint256 _deposit, string memory _postalCode, Coordinates memory _coordinate) external {
         parkingById[parkingId] = Parking(payable(msg.sender), _price, _deposit, 0, _postalCode, _coordinate);
         emit ParkingRegistered(parkingId);
         parkingId += 1;
@@ -95,7 +95,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         Parking[] memory parkings = new Parking[](parkingCount);
         for (uint i = 0; i < parkingCount; i++) {
             uint currentId = i + 1;
-            Parking storage currentParking = parkingById[currentId];
+            Parking storage currentParking = parkingById[currentId-1];
             parkings[i] = currentParking;
         }
         return parkings;
