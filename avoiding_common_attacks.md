@@ -7,7 +7,7 @@
 * On s'assure que les contrats ne seront pas accidentellement déployés en utilisant une version trop récente avec des
 vulnérabilités 
 
-## Pull Payment :
+## Pull Payment
 * Création d'une fonction de withdraw pour le propriétaire afin qu'il récupère les fonds disponibles dans le contrat
 
 ## Faille de Reentrancy
@@ -29,7 +29,7 @@ le délai des 15 sec n'est donc pas quelque chose qui puisse rendre faillible le
 * Nous n'utilisons pas de random dans notre DAPP
 
 ## Delegation des appels
-* Nous serons vigilants 
+* Nous n'avons pas, pour le moment, d'appels vers d'autres contrats 
 
 ## Front running
 * Nous n'avons pas de fonctionnalité nécessitant de faire une action rapide. Il n'y a donc aucune faille à ce niveau.

@@ -3,7 +3,7 @@
 ## Objet du contrat :
     Permettre à un propriétaire, un conducteur et un IOT de communiquer avec la blockchain au travers de parkT
     La création de tests permet de s'assurer du bon fonctionnement de l'application et de tester l'ensemble des cas 
-    d'usage.
+    d'usage. 
 * Tous les tests suivent la même logique d'implémentation: 
   * Vérification des reverts et require
   * Vérification des cas nominaux
@@ -37,6 +37,8 @@
   * Vérification que l'adresse du conducteur ayant fait la réservation est dissociée du parking
   * Vérification de la remise à 0 du montant minimum requis pour une journée de réservation
   * Vérification de l'évènement confirmant la remise à disposition du parking
+    * On ne teste pas les montants envoyés, car étant dépendant du block.timestamp, le montant est aléatoire selon la
+    durée du test
 
 ## Withdraw
 ### should revert if is not the owner of the parking

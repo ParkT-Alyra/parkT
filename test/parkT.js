@@ -3,22 +3,22 @@ const ParkT = artifacts.require("./ParkT.sol");
 
 contract("parkT", accounts => {
 
-    let parkTInstance, spot, registerParking;
+    let parkTInstance, parking, registerParking;
     before(async () => {
         parkTInstance = await ParkT.deployed();
         registerParking = await parkTInstance.registerParking(1, 250, 16580, {x: 200, y: 500}, { from: accounts[0] });
     })
     beforeEach(async () => {
-        spot = await parkTInstance.parkingById(0);
+        parking = await parkTInstance.parkingById(0);
     });
 
     describe("registerParking", () => {
         it("...should have a price and all information", async () => {
             // appel de la méthode d'enregistrement d'un parking
-            assert.equal(spot.priceBySecond, 1, "The parking cost 1 token by second");
-            assert.equal(spot.deposit, 250, "The deposit is 250");
-            assert.equal(spot.owner, accounts[0], "owner account");
-            assert.equal(spot.balance, 0, "balance O");
+            assert.equal(parking.priceBySecond, 1, "The parking cost 1 token by second");
+            assert.equal(parking.deposit, 250, "The deposit is 250");
+            assert.equal(parking.owner, accounts[0], "owner account");
+            assert.equal(parking.balance, 0, "balance O");
             expectEvent(registerParking, "ParkingRegistered", {
                 parkingId: new BN(0)
             });
@@ -88,7 +88,7 @@ contract("parkT", accounts => {
 
     describe("withdraw", () => {
         it("...should revert if is not the owner of the parking", async () => {
-            spot.balance = 500;
+            parking.balance = 500;
             await expectRevert(
                 parkTInstance.withdraw(0, {from: accounts[1]}),
                 'revert',
@@ -100,10 +100,10 @@ contract("parkT", accounts => {
             parkingById.balance = new BN(500);
             assert.equal(parkingById.balance, 500, "test balance");
 
-            parkingById = await parkTInstance.parkingById(0);
             const payedAmount = await parkTInstance.withdraw(0, {from: accounts[0]})
 
             expectEvent(payedAmount, "DonePayment");
+            parkingById = await parkTInstance.parkingById(0);
 
             assert.equal(parkingById.balance, 0, "reset balance");
         });
