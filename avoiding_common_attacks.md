@@ -14,8 +14,9 @@ vulnérabilités
 * Mise à jour de la balance du propriétaire du parking avant l'envoi d'Ether  
 
 ## DoS Gas Limit
-* Nous n'utilisons pas de tableau mais uniquement des mappings pour limiter l'utilisation du GAS mais aussi éviter les 
-boucles infinies
+* Nous utilisons principalement des mappings afin de limiter l'utilisation du GAS mais aussi éviter les 
+boucles infinies. Sur le principe de memory array building nous utilisons les array dans des fonctions avec le modifier
+view
 
 ## Données confidentielles
 * Aucune donnée confidentielle stockée sur la blockchain
@@ -29,7 +30,8 @@ le délai des 15 sec n'est donc pas quelque chose qui puisse rendre faillible le
 * Nous n'utilisons pas de random dans notre DAPP
 
 ## Delegation des appels
-* Nous n'avons pas, pour le moment, d'appels vers d'autres contrats 
+* Nous n'avons pas, pour le moment, d'appels vers d'autres contrats. Nous l'utiliserons uniquement pour le proxy
+On vérifiera dans le byte code de la transaction afin qu'elle n'exécute pas un appel délégué 
 
 ## Front running
 * Nous n'avons pas de fonctionnalité nécessitant de faire une action rapide. Il n'y a donc aucune faille à ce niveau.
@@ -45,12 +47,3 @@ Nous n'utilisons pas d'Oracle dans le cadre de parkT
 ## Griefing
 Nous avons pour le moment un seul contrat, mais s'il est nécessaire de déployer un second contrat, nous serons
 vigilants au gas consommé sur les différents contrats
-
-## Check-effects-interaction
-
-## Low level calls
-
-## Guard conditions
-
-## Gas costs
-* Nous manipulons avec précautions les array et les mappings pour éviter des consommations de GAS trop importantes
