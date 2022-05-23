@@ -15,6 +15,11 @@
 ### should register one parking at a time
   * L'enregistrement d'un parking se fait un par un
 
+## fetchParkings
+### should fetch and returns registered parkings
+  * Pour les besoins du front, nous avons besoin de récupérer les parkings par rapport à un code postal.
+  * Pour cela on vérifie que l'ensemble des parkings sont remontés dans le tableau `parkings`
+
 ## Book Parking
 ### should not book a parking if is not register
   * Vérification que le parking qui souhaite être réservé existe sur la blockchain 
