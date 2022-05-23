@@ -57,7 +57,7 @@ class App extends Component {
   render() {
     //mock parkings, à récupérer d'une requête à un tableau memory des parkings availables []
     const parkings = [
-          { "postalCode": "06000", "priceBySecond": 10, "coordinates": {"x": 10, "y": 10} },
+          { "postalCode": "06000", "priceBySecond":  10, "coordinates": {"x": 10, "y": 10} },
           { "postalCode": "75014", "priceBySecond":  30, "coordinates": {"x": 10, "y": 10} },
           { "postalCode": "06100", "priceBySecond":  25, "coordinates": {"x": 10, "y": 10} },
           { "postalCode": "06200", "priceBySecond":  5,  "coordinates": {"x": 10, "y": 10} },
@@ -70,7 +70,7 @@ class App extends Component {
       <div className="App">
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Layout />}>
+            <Route path="/parkT/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="register-parking" element={<RegisterParking />} />
               <Route path="parkings" element={<Parkings parkings={parkings} />} />

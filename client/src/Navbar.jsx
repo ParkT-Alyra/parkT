@@ -6,13 +6,13 @@ function Navbar() {
     <nav>
       <ul>
         <li>
-          <Link to="/">Home</Link>
+          <Link to="/parkT/">Home</Link>
         </li>
         <li>
-          <Link to="/parkings">Rechercher un parking</Link>
+          <Link to="/parkT/parkings">Rechercher un parking</Link>
         </li>
         <li>
-          <Link to="/register-parking">Enregistrer votre parking</Link>
+          <Link to="/parkT/register-parking">Enregistrer votre parking</Link>
         </li>
       </ul>
     </nav>
