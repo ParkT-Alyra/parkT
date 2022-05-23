@@ -44,7 +44,7 @@ Une fois le repo cloné :
 	
 	npm install
 
-Pour installer les dépendances.
+Pour installer les dépendances (hdwallet, openzeppelin, dotenv).
 
 Ensuite, déplacez-vous dans le répertoire client. Dans votre terminal/ligne de commande, exécutez :
 
