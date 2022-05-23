@@ -30,7 +30,7 @@ Pour nos structures, nos définissons les uint ensemble
         uint256 priceBySecond;
         uint256 deposit;
         uint256 balance;
-        uint16 postalCode;
+        string postalCode;
         Coordinates coordinate;
     }
 
