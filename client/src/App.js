@@ -22,7 +22,7 @@ class App extends Component {
       const accounts = await web3.eth.getAccounts();
 
       // Get the contract instance.
-      const deployedNetwork = ParkT.networks["5777"];
+      const deployedNetwork = ParkT.networks["3"];
       const instance = new web3.eth.Contract(
         ParkT.abi,
         deployedNetwork && deployedNetwork.address,
