@@ -10,11 +10,11 @@ module.exports = {
     develop: {
       port: 8545
     },
-    kovan: {
+    ropsten: {
       provider: function() {
-        return new HDWalletProvider(`${process.env.MNEMONIC}`, `https://kovan.infura.io/v3/${process.env.INFURA_ID}`)
+        return new HDWalletProvider(`${process.env.MNEMONIC}`, `https://ropsten.infura.io/v3/${process.env.INFURA_ID}`)
       },
-      network_id: 42,
+      network_id: 3,
       networkCheckTimeout: 1000000,
       timeoutBlocks: 200
     }
