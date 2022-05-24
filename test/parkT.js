@@ -7,7 +7,7 @@ contract("parkT", accounts => {
     let parkTInstance, parking, registerParking;
     before(async () => {
         parkTInstance = await ParkT.deployed();
-        registerParking = await parkTInstance.registerParking(1, 250, "16580", {x: 200, y: 500}, { from: accounts[0] });
+        registerParking = await parkTInstance.registerParking(1, 250, "16580", {x: "48.85449", y:"2.31356" }, { from: accounts[0] });
     })
     beforeEach(async () => {
         parking = await parkTInstance.parkingById(1);
@@ -20,6 +20,7 @@ contract("parkT", accounts => {
             assert.equal(parking.deposit, 250, "The deposit is 250");
             assert.equal(parking.owner, accounts[0], "owner account");
             assert.equal(parking.balance, 0, "balance O");
+            assert.equal(parking.coordinate.x, "48.85449", "coordinate x");
             expectEvent(registerParking, "ParkingRegistered", {
                 parkingId: new BN(1)
             });
@@ -34,8 +35,8 @@ contract("parkT", accounts => {
 
     describe("fetchParkings", () => {
         it("...should fetch and returns registered parkings", async () => {
-            await parkTInstance.registerParking(5, 250, "75014", {x: 200, y: 500}, { from: accounts[1] });
-            await parkTInstance.registerParking(10, 255, "06000", {x: 200, y: 500}, { from: accounts[2] });
+            await parkTInstance.registerParking(5, 250, "75014", {x: "48.85449", y:"2.31356"}, { from: accounts[1] });
+            await parkTInstance.registerParking(10, 255, "06000", {x: "48.85449", y:"2.31356"}, { from: accounts[2] });
             const parkings = await parkTInstance.fetchParkings();
             expect(parkings[0].priceBySecond).to.be.bignumber.equal(new BN(1));
             expect(parkings[0].postalCode).to.be.equal("16580");

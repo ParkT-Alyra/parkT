@@ -22,16 +22,14 @@ class App extends Component {
       const accounts = await web3.eth.getAccounts();
 
       // Get the contract instance.
-      const networkId = await web3.eth.net.getId();
-      const deployedNetwork = ParkT.networks[networkId];
+      const deployedNetwork = ParkT.networks["5777"];
       const instance = new web3.eth.Contract(
         ParkT.abi,
         deployedNetwork && deployedNetwork.address,
       );
-
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance }, this.runExample);
+      this.setState({ web3, accounts, contract: instance }, this.runInit);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -39,31 +37,27 @@ class App extends Component {
       );
       console.error(error);
     }
-  };
+  }
 
-  runExample = async () => {
-    const { accounts, contract } = this.state;
+  runInit = async () => {
+    const { contract } = this.state;
 
-    // Stores a given value, 5 by default.
-    //await contract.methods.set(5).send({ from: accounts[0] });
-
-    // Get the value from the contract to prove it worked.
-    //const response = await contract.methods.get().call();
+    const parkings = await contract.methods.fetchParkings().call();
 
     // Update state with the result.
-    this.setState({ storageValue: 'response' });
-  };
+    this.setState({ parkings: parkings });
+  }
+
+  registerParking = async () => {
+    const { contract, accounts } = this.state;
+    await contract.methods.registerParking(3, 150, "75014", {x: "49.85449", y:"3.31356" }).send({ from: accounts[0] });
+  }
 
   render() {
     //mock parkings, à récupérer d'une requête à un tableau memory des parkings availables []
-    const parkings = [
-          { "postalCode": "06000", "priceBySecond":  10, "coordinates": {"x": 10, "y": 10} },
-          { "postalCode": "75014", "priceBySecond":  30, "coordinates": {"x": 10, "y": 10} },
-          { "postalCode": "06100", "priceBySecond":  25, "coordinates": {"x": 10, "y": 10} },
-          { "postalCode": "06200", "priceBySecond":  5,  "coordinates": {"x": 10, "y": 10} },
-          { "postalCode": "06300", "priceBySecond":  12, "coordinates": {"x": 10, "y": 10} }
-    ];
-    if (!this.state.web3) {
+    const { parkings } = this.state;
+
+    if (!this.state.web3 || !parkings) {
       return <div>Loading Web3, accounts, and contract...</div>;
     }
     return (
@@ -72,23 +66,13 @@ class App extends Component {
           <Routes>
             <Route path="/parkT/" element={<Layout />}>
               <Route index element={<Home />} />
-              <Route path="register-parking" element={<RegisterParking />} />
+              <Route path="register-parking" element={<RegisterParking registerParking={this.registerParking} />} />
               <Route path="parkings" element={<Parkings parkings={parkings} />} />
               <Route path="*" element={<NoPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
         <h1>Good to Go!</h1>
-        <p>Your Truffle Box is installed and ready.</p>
-        <h2>Smart Contract Example</h2>
-        <p>
-          If your contracts compiled and migrated successfully, below will show
-          a stored value of 5 (by default).
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 42</strong> of App.js.
-        </p>
-        <div>The stored value is: {this.state.storageValue}</div>
       </div>
     );
   }
