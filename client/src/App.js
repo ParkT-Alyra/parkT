@@ -54,7 +54,7 @@ class App extends Component {
   }
 
   render() {
-    const { parkings } = this.state;
+    const { parkings, accounts } = this.state;
 
     if (!this.state.web3 || !parkings) {
       return <div>Loading Web3, accounts, and contract...</div>;
@@ -78,7 +78,7 @@ class App extends Component {
             </Route>
           </Routes>
         </BrowserRouter>
-        <h1>Good to Go!</h1>
+        Bonjour, Vous êtes connecté avec l'adresse : {accounts[0]}
       </div>
     );
   }
