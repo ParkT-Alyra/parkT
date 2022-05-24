@@ -50,11 +50,10 @@ class App extends Component {
 
   registerParking = async () => {
     const { contract, accounts } = this.state;
-    await contract.methods.registerParking(3, 150, "75014", {x: "49.85449", y:"3.31356" }).send({ from: accounts[0] });
+    await contract.methods.registerParking(this.price.value, this.deposite.value, this.postalCode.value, {x: this.coordX.value, y:this.coordY.value }).send({ from: accounts[0] });
   }
 
   render() {
-    //mock parkings, à récupérer d'une requête à un tableau memory des parkings availables []
     const { parkings } = this.state;
 
     if (!this.state.web3 || !parkings) {
@@ -66,7 +65,14 @@ class App extends Component {
           <Routes>
             <Route path="/parkT/" element={<Layout />}>
               <Route index element={<Home />} />
-              <Route path="register-parking" element={<RegisterParking registerParking={this.registerParking} />} />
+              <Route path="register-parking"
+                element={<RegisterParking
+                  coordY={(coordY) => this.coordY = coordY}
+                  coordX={(coordX) => this.coordX = coordX}
+                  price={(price) => this.price = price}
+                  deposite={(deposite) => this.deposite = deposite}
+                  postalCode={(postalCode) => this.postalCode = postalCode}
+                  registerParking={this.registerParking} />} />
               <Route path="parkings" element={<Parkings parkings={parkings} />} />
               <Route path="*" element={<NoPage />} />
             </Route>
