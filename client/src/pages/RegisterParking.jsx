@@ -1,8 +1,12 @@
 import React from 'react';
 
-function RegisterParking() {
+function RegisterParking(props) {
+    const {registerParking} = props;
     return (
-        <h1>Un parking ? Enregistrez-vous !</h1>
+        <div>
+            <h1>Un parking ? Enregistrez-vous !</h1>
+            <button onClick={registerParking}>Register Parking</button>
+        </div>
     );
 }
 

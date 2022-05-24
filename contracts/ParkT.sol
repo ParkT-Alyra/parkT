@@ -32,8 +32,8 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     /// @notice coordinates of the parking
     /// @dev abscissa and ordinate
     struct Coordinates {
-        uint256 x;
-        uint256 y;
+        string x;
+        string y;
     }
 
     /// @notice struct for parking registration

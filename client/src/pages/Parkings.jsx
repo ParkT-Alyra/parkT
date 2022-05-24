@@ -7,11 +7,10 @@ function Parkings({parkings}) {
         setSearchTerm(event.target.value);
     };
     React.useEffect(() => {
-        const results = parkings.filter(parking => parking.postalCode == searchTerm
+        const results = parkings.filter(parking => parking['postalCode'] === searchTerm
         );
         setSearchResults(results);
       }, [searchTerm]);
-
     return (
         <div className="Parkings">
             <h1>Recherchez une place en entrant un code postal</h1>
@@ -19,7 +18,7 @@ function Parkings({parkings}) {
             <input type="text" placeholder="code postal" value={searchTerm} onChange={handleChange}/>
             <ul>
                 {searchResults.map(item => (
-                 <li key="{item}">{item.postalCode}, coordonnées : {item.coordinates.x} - {item.coordinates.y}</li>
+                 <li key="{item}">{item.postalCode}, coordonnées : {item.coordinate.x} - {item.coordinate.y}</li>
                 ))}
             </ul>
         </div>
