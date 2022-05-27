@@ -11,7 +11,7 @@ import NoPage from "./pages/NoPage";
 import "./App.css";
 
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
+  state = { storageValue: 0, web3: null, accounts: null, accountBalance: null, contract: null, parkings: null };
 
   componentDidMount = async () => {
     try {
@@ -21,15 +21,21 @@ class App extends Component {
       // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts();
 
+      const weiRawBalance = await web3.eth.getBalance(accounts[0]);
+
+      const accountBalance = await web3.utils.fromWei(weiRawBalance, 'ether');
+
       // Get the contract instance.
-      const deployedNetwork = ParkT.networks["3"];
+      //This is not a 100% accurate guess as any private network could use testnet and mainnet genesis blocks and network IDs.
+      const networkId = await web3.eth.net.getId();
+      const deployedNetwork = ParkT.networks[networkId];
       const instance = new web3.eth.Contract(
         ParkT.abi,
         deployedNetwork && deployedNetwork.address,
       );
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance }, this.runInit);
+      this.setState({ web3, accounts, accountBalance, contract: instance }, this.runInit);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -45,7 +51,7 @@ class App extends Component {
     const parkings = await contract.methods.fetchParkings().call();
 
     // Update state with the result.
-    this.setState({ parkings: parkings });
+    this.setState({ parkings });
   }
 
   registerParking = async () => {
@@ -53,12 +59,18 @@ class App extends Component {
     await contract.methods.registerParking(this.price.value, this.deposite.value, this.postalCode.value, {x: this.coordX.value, y:this.coordY.value }).send({ from: accounts[0] });
   }
 
+  bookParking = async () => {
+    // const { contract, accounts } = this.state;
+    console.log(this.parkingId.value);
+  }
+
   render() {
-    const { parkings, accounts } = this.state;
+    const { parkings, accounts, accountBalance } = this.state;
 
     if (!this.state.web3 || !parkings) {
       return <div>Loading Web3, accounts, and contract...</div>;
     }
+
     return (
       <div className="App">
         <BrowserRouter>
@@ -72,13 +84,21 @@ class App extends Component {
                   price={(price) => this.price = price}
                   deposite={(deposite) => this.deposite = deposite}
                   postalCode={(postalCode) => this.postalCode = postalCode}
-                  registerParking={this.registerParking} />} />
-              <Route path="parkings" element={<Parkings parkings={parkings} />} />
+                  registerParking={this.registerParking}
+                />} />
+              <Route path="parkings"
+                element={<Parkings
+                  parkings={parkings}
+                  parkingId={(parkingId) => this.parkingId = parkingId}
+                  bookParking={this.bookParking}
+                />} />
               <Route path="*" element={<NoPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
         Bonjour, Vous êtes connecté avec l'adresse : {accounts[0]}
+        <br/>
+        Vous disposez de {accountBalance} ETH
       </div>
     );
   }

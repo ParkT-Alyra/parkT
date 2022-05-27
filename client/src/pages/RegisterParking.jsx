@@ -17,7 +17,7 @@ function RegisterParking(props) {
             <input ref={deposite} type="text" />
             <br/>
             <br/>
-            <button onClick={registerParking}>Register Parking</button>
+            <button onClick={registerParking}>Enregistrer votre Parking</button>
         </div>
     );
 }

@@ -40,6 +40,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     /// @dev Parking is the main struct representing a spot for a car
     struct Parking {
         address payable owner;
+        uint id;
         uint256 priceBySecond;
         uint256 deposit;
         uint256 balance;
@@ -86,7 +87,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     function registerParking(uint256 _price, uint256 _deposit, string memory _postalCode, Coordinates memory _coordinate) external {
         _parkingIds.increment();
         uint parkingId = _parkingIds.current();
-        parkingById[parkingId] = Parking(payable(msg.sender), _price, _deposit, 0, _postalCode, _coordinate);
+        parkingById[parkingId] = Parking(payable(msg.sender), parkingId, _price, _deposit, 0, _postalCode, _coordinate);
         emit ParkingRegistered(parkingId);
     }
 
