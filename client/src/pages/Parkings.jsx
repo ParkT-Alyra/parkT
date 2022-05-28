@@ -1,7 +1,7 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState} from 'react';
 
 function ParkingItem(props) {
-    const {bookParking, parkingId} = props;
+    const {bookParking} = props;
 
     return (
         <tr>
@@ -11,17 +11,14 @@ function ParkingItem(props) {
             <td>{props.deposit}</td>
             <td>{props.coordinate.x} - {props.coordinate.y}</td>
             <td>
-                <input type="hidden" ref={parkingId} value={props.uniqId} readOnly />
-                 <button onClick={bookParking}>Réserver le Parking</button>
+                 <button id={props.uniqId} value={parseInt(props.priceBySecond)*24*60*60+parseInt(props.deposit)} onClick={bookParking}>Réserver le Parking</button>
             </td>
         </tr>
     );
 }
 
 function Parkings(props) {
-    console.log(props);
-    const parkings = props.parkings;
-    const {bookParking, parkingId} = props;
+    const {parkings, bookParking} = props;
     const [searchedPostalCode, setSearchedPostalCode] = useState("");
     const [parkingsFoundByPostalCode, setParkingsFoundByPostalCode] = useState([]);
     const handleChange = event => {
@@ -39,7 +36,6 @@ function Parkings(props) {
             deposit={parking.deposit}
             coordinate={parking.coordinate}
             bookParking={bookParking}
-            parkingId={parkingId}
         />
     );
 

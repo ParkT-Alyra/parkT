@@ -56,12 +56,17 @@ class App extends Component {
 
   registerParking = async () => {
     const { contract, accounts } = this.state;
+
     await contract.methods.registerParking(this.price.value, this.deposite.value, this.postalCode.value, {x: this.coordX.value, y:this.coordY.value }).send({ from: accounts[0] });
   }
 
-  bookParking = async () => {
-    // const { contract, accounts } = this.state;
-    console.log(this.parkingId.value);
+  bookParking = async (event) => {
+    const { contract, accounts } = this.state;
+
+    await contract.methods.bookParking(event.target.id).send({ from: accounts[0], value: event.target.value });
+    await contract.events.ParkingBooked({})
+      .on("connected", function(subscriptionId){ console.log(subscriptionId);})
+      .on('data', function(event){ console.log(event);})
   }
 
   render() {
