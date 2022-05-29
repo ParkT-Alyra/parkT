@@ -2,13 +2,14 @@ import React from "react";
 import {Outlet} from "react-router-dom";
 import Navbar from "../Navbar";
 
-const Layout = () => {
-  return (
+function Layout(props) {
+    const { accounts } = props;
+    return (
     <>
-      <Navbar />
+      <Navbar accounts />
       <Outlet />
     </>
   );
-};
+}
 
 export default Layout;

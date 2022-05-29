@@ -82,7 +82,7 @@ class App extends Component {
       <div className="App">
         <BrowserRouter>
           <Routes>
-            <Route path="/parkT/" element={<Layout />}>
+            <Route path="/parkT/" element={<Layout accounts={accounts} />}>
               <Route index element={<Home />} />
               <Route path="register-parking"
                 element={<RegisterParking
