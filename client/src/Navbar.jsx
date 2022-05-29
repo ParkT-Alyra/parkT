@@ -13,18 +13,10 @@ function Navbar(props) {
       </div>
       <div className="navbar-menu ml-1">
         <div className="navbar-start">
-          <a className="navbar-item">
-            <Link to="/parkT/parkings">Rechercher un parking</Link>
-          </a>
-          <a className="navbar-item">
-            <Link to="/parkT/register-parking">Enregistrez votre parking</Link>
-          </a>
-          <a className="navbar-item">
-            <Link to="/parkT/admin-parking">Administrez votre parking</Link>
-          </a>
-          <a className="navbar-item">
-            <Link to="/parkT/handle-booked-parking">Gérez votre réservation</Link>
-          </a>
+            <Link className="navbar-item" to="/parkT/parkings">Rechercher un parking</Link>
+            <Link className="navbar-item" to="/parkT/register-parking">Enregistrez votre parking</Link>
+            <Link className="navbar-item" to="/parkT/admin-parking">Administrez votre parking</Link>
+            <Link className="navbar-item" to="/parkT/handle-booked-parking">Gérez votre réservation</Link>
         </div>
       </div>
       <div className="navbar-end">
