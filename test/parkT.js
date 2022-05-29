@@ -65,7 +65,7 @@ contract("parkT", accounts => {
             const bookingByParkingId = await parkTInstance.bookingByParkingId(1);
             assert.notEqual(bookingByParkingId.timestamp, new BN(1), "timestamp updated")
             assert.equal(bookingByParkingId.driver, accounts[1], "driver updated")
-            assert.equal(bookingByParkingId.requiredAmount, 86650, "amount updated")
+            assert.equal(bookingByParkingId.amount, 86650, "amount updated")
             expectEvent(bookParking, "ParkingBooked", {
                 parkingId: new BN(1)
             });
@@ -93,7 +93,7 @@ contract("parkT", accounts => {
 
             assert.equal(bookedParking.timestamp, 0, "timestamp reset");
             assert.equal(bookedParking.driver, 0, "driver reset");
-            assert.equal(bookedParking.requiredAmount, 0, "amount reset");
+            assert.equal(bookedParking.amount, 0, "amount reset");
 
             expectEvent(releaseParking, "ParkingReleased", {
                 parkingId: new BN(1)

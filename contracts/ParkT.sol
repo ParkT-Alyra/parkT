@@ -53,7 +53,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     struct Booking {
         address payable driver;
         uint256 timestamp;
-        uint256 requiredAmount;
+        uint256 amount;
     }
 
     // all parkings
@@ -120,7 +120,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         uint minRequireDemand = dailyPrice + parking.deposit;
         require(msg.value >= minRequireDemand, "Insufficient funds");
 
-        booking.requiredAmount = minRequireDemand;
+        booking.amount = msg.value;
         booking.timestamp = block.timestamp;
         booking.driver = payable(msg.sender);
 
@@ -146,14 +146,15 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         uint256 amount = parking.priceBySecond * delay;
         parking.balance += amount;
 
-        uint256 driverRefund = booking.requiredAmount - amount;
+        uint256 driverRefund = booking.amount - amount;
         booking.timestamp = 0;
         booking.driver = payable(address(0));
-        booking.requiredAmount = 0;
+        booking.amount = 0;
 
         // update Blockchain
         bookingByParkingId[_parkingId] = booking;
-        payable(msg.sender).transfer(driverRefund);
+        (bool success, ) = payable(msg.sender).call{value: driverRefund}("");
+        require(success, "Transaction failed"); //Require the transaction success or revert
 
         emit ParkingReleased(_parkingId, amount, driverRefund);
     }
