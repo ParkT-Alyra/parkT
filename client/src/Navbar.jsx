@@ -12,7 +12,13 @@ function Navbar() {
           <Link to="/parkT/parkings">Rechercher un parking</Link>
         </li>
         <li>
-          <Link to="/parkT/register-parking">Enregistrer votre parking</Link>
+          <Link to="/parkT/register-parking">Enregistrez votre parking</Link>
+        </li>
+        <li>
+          <Link to="/parkT/admin-parking">Administrez votre parking</Link>
+        </li>
+        <li>
+          <Link to="/parkT/handle-booked-parking">Gérez votre réservation</Link>
         </li>
       </ul>
     </nav>

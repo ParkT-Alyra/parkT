@@ -33,7 +33,7 @@ contract("parkT", accounts => {
         });
     });
 
-    describe("fetchParkings", () => {
+    describe.only("fetchParkings", () => {
         it("...should fetch and returns registered parkings", async () => {
             await parkTInstance.registerParking(5, 250, "75014", {x: "48.85449", y:"2.31356"}, { from: accounts[1] });
             await parkTInstance.registerParking(10, 255, "06000", {x: "48.85449", y:"2.31356"}, { from: accounts[2] });
@@ -44,6 +44,24 @@ contract("parkT", accounts => {
             expect(parkings[1].postalCode).to.be.equal("75014");
             expect(parkings[2].priceBySecond).to.be.bignumber.equal(new BN(10));
             expect(parkings[2].postalCode).to.be.equal("06000");
+        });
+        it("...should fetch and returns available parkings", async () => {
+            const parkingsBefore = await parkTInstance.fetchParkings();
+            console.log(parkingsBefore);
+            console.log('####AFTER###');
+            await parkTInstance.bookParking(2, { from: accounts[1], value: 864255 });
+            // const bookedParkingId = await parkTInstance.bookedParkingId(2);
+            // const bookedParkingId1 = await parkTInstance.bookedParkingId(1);
+            const parkings = await parkTInstance.fetchParkings();
+            
+            console.log(parkings);
+            // console.log(bookedParkingId.timestamp);
+            // console.log(bookedParkingId1.timestamp);
+            
+            // const availableParkings = await parkTInstance.fetchAvailableParkings();
+            // //assert.equal(await parkTInstance.getAvailableParkingsCounter(), 2, "parkingId equal 2");
+            // console.log('Available parkings vvvvvvvvvvvvvv');
+            // console.log(availableParkings);
         });
     });
 
@@ -60,17 +78,17 @@ contract("parkT", accounts => {
                 'Insufficient funds',
             );
         });
-        it("...should book an empty parking", async () => {
+        it("...should book a parking", async () => {
             const bookParking = await parkTInstance.bookParking(1, { from: accounts[1], value: 86650 })
-            const bookingByParkingId = await parkTInstance.bookingByParkingId(1);
-            assert.notEqual(bookingByParkingId.timestamp, new BN(1), "timestamp updated")
-            assert.equal(bookingByParkingId.driver, accounts[1], "driver updated")
-            assert.equal(bookingByParkingId.amount, 86650, "amount updated")
+            const bookedParkingId = await parkTInstance.bookedParkingId(1);
+            assert.notEqual(bookedParkingId.timestamp, new BN(1), "timestamp updated")
+            assert.equal(bookedParkingId.driver, accounts[1], "driver updated")
+            assert.equal(bookedParkingId.requiredAmount, 86650, "amount updated")
             expectEvent(bookParking, "ParkingBooked", {
                 parkingId: new BN(1)
             });
         });
-        it("...should not book a parking if not empty", async () => {
+        it("...should not book an already booked parking", async () => {
             await expectRevert(
                 parkTInstance.bookParking(1, { from: accounts[1], value: 86650 }),
                 'Not available',
@@ -89,7 +107,7 @@ contract("parkT", accounts => {
         it("...should release a parking", async () => {
             const releaseParking = await parkTInstance.releaseParking(1, {from: accounts[1]});
 
-            const bookedParking = await parkTInstance.bookingByParkingId(1);
+            const bookedParking = await parkTInstance.bookedParkingId(1);
 
             assert.equal(bookedParking.timestamp, 0, "timestamp reset");
             assert.equal(bookedParking.driver, 0, "driver reset");

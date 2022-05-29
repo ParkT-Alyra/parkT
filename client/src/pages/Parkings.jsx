@@ -11,6 +11,7 @@ function ParkingItem(props) {
             <td>{props.deposit}</td>
             <td>{props.coordinate.x} - {props.coordinate.y}</td>
             <td>
+                {/* value corresponds to the calculation over one day with a price per second */}
                  <button id={props.uniqId} value={parseInt(props.priceBySecond)*24*60*60+parseInt(props.deposit)} onClick={bookParking}>Réserver le Parking</button>
             </td>
         </tr>

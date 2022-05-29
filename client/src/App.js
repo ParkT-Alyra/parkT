@@ -7,6 +7,8 @@ import Home from "./pages/Home";
 import RegisterParking from "./pages/RegisterParking";
 import Parkings from "./pages/Parkings";
 import NoPage from "./pages/NoPage";
+import AdminParking from "./pages/AdminParking";
+import HandleBookedParking from "./pages/HandleBookedParking";
 
 import "./App.css";
 
@@ -97,6 +99,8 @@ class App extends Component {
                   parkingId={(parkingId) => this.parkingId = parkingId}
                   bookParking={this.bookParking}
                 />} />
+                <Route path="admin-parking" element={<AdminParking />} />
+                <Route path="handle-booked-parking" element={<HandleBookedParking />} />
               <Route path="*" element={<NoPage />} />
             </Route>
           </Routes>

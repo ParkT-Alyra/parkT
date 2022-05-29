@@ -6,8 +6,17 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract ParkT is Ownable { //parkTBooking + 1 contrat token
     // state variables
+    /// @notice Counter helper for increment/decrement
+    /// @dev Counter from openzeppelin
     using Counters for Counters.Counter;
+    /// @notice Counter helper for counting parkings registered
+    /// @dev Counter for all parkings 
     Counters.Counter private _parkingIds;
+    /// @notice Counter for current booked parkings
+    /// @dev Counter for all booked parkings 
+    Counters.Counter private _bookedParkingIds;
+
+    uint public availableParkingsCounter;
 
     /// @notice Emitted when a Parking is register
     /// @dev Emitted when registerParking called
@@ -49,7 +58,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     }
 
     /// @notice struct for booking reservation
-    /// @dev Booking is the struct representing a booking by a driver
+    /// @dev Booking is the struct representing a booking by a driverbookParking
     struct Booking {
         address payable driver;
         uint256 timestamp;
@@ -62,8 +71,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     mapping(uint => Parking) public parkingById;
     /// @notice list of parking booked by id
     /// @dev use for registering all booking and display available parking
-    mapping(uint => Booking) public bookingByParkingId;
-    // @TODO mapping parking by postalcode  idParking => postcalCode
+    mapping(uint => Booking) public bookedParkingId;
 
     /// @notice check if the withdraw is from the parking owner
     /// @dev check if the transaction signer is the owner of the parking
@@ -76,6 +84,10 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     ///@dev parkingId less one is the number of the parking registering - TODO use instead @openzeppelin/contracts/utils/Counters.sol
     function getParkingId() public view returns (uint256) {
         return _parkingIds.current();
+    }
+
+    function getAvailableParkingsCounter() public view returns (uint) {
+        return availableParkingsCounter;
     }
 
     /// @notice register a parking with all information
@@ -91,7 +103,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         emit ParkingRegistered(parkingId);
     }
 
-    /// @notice fetch all parkings
+    /// @notice fetch all parkings (for demonstration purposes)
     /// @dev return list of all registered parkings (use of memory array building pattern https://fravoll.github.io/solidity-patterns/memory_array_building.html)
     function fetchParkings() public view returns (Parking[] memory) {
         uint parkingCount = _parkingIds.current();
@@ -105,14 +117,32 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         return parkings;
     }
 
+    /// @notice fetch all available parkings
+    /// @dev return list of all registered parkings that are not already booked
+    function fetchAvailableParkings() public returns (Parking[] memory) {
+        uint parkingCount = _parkingIds.current();
+        uint availableParkingCount = _parkingIds.current() - _bookedParkingIds.current();
+        availableParkingsCounter = availableParkingCount;
+
+        Parking[] memory availableParkings = new Parking[](availableParkingCount);
+        for (uint i = 0; i < parkingCount; i++) {
+            uint currentId = i + 1;
+            Booking memory booking = bookedParkingId[currentId];
+            if (booking.timestamp == 0) {
+                availableParkings[i] = parkingById[currentId];
+            }
+        }
+        return availableParkings;
+    }
+
     /// @notice book a parking by a driver
     /// @param _parkingId id of the parking wanted to book by the driver
-    /// @dev checks about availability and authorized the transaction - update bookingByParkingId with the booking
+    /// @dev checks about availability and authorized the transaction - update bookedParkingId with the booking
     function bookParking(uint _parkingId) payable external {
         Parking memory parking = parkingById[_parkingId];
         require(parking.owner != address(0),  "Parking not register");
 
-        Booking memory booking = bookingByParkingId[_parkingId];
+        Booking memory booking = bookedParkingId[_parkingId];
         require(booking.timestamp == 0,  "Not available");
 
         // vérification des fonds
@@ -125,7 +155,8 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         booking.driver = payable(msg.sender);
 
         // update Blockchain
-        bookingByParkingId[_parkingId] = booking;
+        bookedParkingId[_parkingId] = booking;
+        _bookedParkingIds.increment();
 
         emit ParkingBooked(_parkingId);
     }
@@ -135,7 +166,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     /// @dev call by the IOT with the booker address
     /// @dev save the collateral for the owner and refund the driver
     function releaseParking(uint _parkingId) external {
-        Booking memory booking = bookingByParkingId[_parkingId];
+        Booking memory booking = bookedParkingId[_parkingId];
 
         require(booking.driver == msg.sender, "Driver not booker");
 
@@ -152,7 +183,8 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         booking.amount = 0;
 
         // update Blockchain
-        bookingByParkingId[_parkingId] = booking;
+        bookedParkingId[_parkingId] = booking;
+        _bookedParkingIds.decrement();
         (bool success, ) = payable(msg.sender).call{value: driverRefund}("");
         require(success, "Transaction failed"); //Require the transaction success or revert
 
