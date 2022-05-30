@@ -66,8 +66,8 @@ contract("parkT", accounts => {
 
     describe("fetchParkings", () => {
         it("...should fetch and returns registered parkings", async () => {
-            await parkTInstance.registerParking(5, 250, "75014", {x: "48.85449", y:"2.31356"}, { from: accounts[1] });
-            await parkTInstance.registerParking(10, 255, "06000", {x: "48.85449", y:"2.31356"}, { from: accounts[2] });
+            await parkTInstance.registerParking(5, 250, "75014", {x: "48.85449", y: "2.31356"}, {from: accounts[1]});
+            await parkTInstance.registerParking(10, 255, "06000", {x: "48.85449", y: "2.31356"}, {from: accounts[2]});
             const parkings = await parkTInstance.fetchParkings();
             expect(parkings[0].priceBySecond).to.be.bignumber.equal(new BN(1));
             expect(parkings[0].postalCode).to.be.equal("16580");
@@ -76,6 +76,9 @@ contract("parkT", accounts => {
             expect(parkings[2].priceBySecond).to.be.bignumber.equal(new BN(10));
             expect(parkings[2].postalCode).to.be.equal("06000");
         });
+    });
+
+    describe("fetchAvailableParkings", () => {
         it("...should fetch and returns available parkings", async () => {
             await parkTInstance.registerParking(10, 255, "06000", {x: "48.85449", y:"2.31356"}, { from: accounts[2] });
             await parkTInstance.registerParking(10, 255, "06200", {x: "48.85449", y:"2.31356"}, { from: accounts[2] });
