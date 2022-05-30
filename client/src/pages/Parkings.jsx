@@ -4,7 +4,7 @@ function ParkingItem(props) {
     const {bookParking} = props;
 
     return (
-        <tr>
+        <tr className={'parking-'+props.uniqId}>
             <td>{props.uniqId}</td>
             <td>{props.postalCode}</td>
             <td>{props.priceBySecond}</td>
@@ -50,8 +50,8 @@ function Parkings(props) {
                 </div>
                 <div className="columns is-centered">
                     <div className="column is-one-fifth">
-                        <label className="has-text-white mb-2">Trouvez des places de parking</label>
-                             <input type="text" className="input is-warning is-small is-rounded mb-2"
+                        <label className="has-text-white">Trouvez des places de parking</label>
+                             <input type="text" className="input is-warning is-small is-rounded my-3"
                                     placeholder="code postal" value={searchedPostalCode} onChange={handleChange}/>
                     </div>
                 </div>

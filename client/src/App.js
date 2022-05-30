@@ -72,6 +72,8 @@ class App extends Component {
     await contract.events.ParkingBooked({})
       .on("connected", function(subscriptionId){ console.log(subscriptionId);})
       .on('data', function(event){ console.log(event);})
+    document.getElementsByClassName('parking-' + event.target.id)[0].classList.add('fadeOut');
+    document.getElementsByClassName('parking-' + event.target.id)[0].classList.add('is-hidden');
     await this.runInit();
   }
 
