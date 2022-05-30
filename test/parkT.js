@@ -33,7 +33,38 @@ contract("parkT", accounts => {
         });
     });
 
-    describe.only("fetchParkings", () => {
+    describe("bookParking", () => {
+        it("...should not book a parking if is not register", async () => {
+            await expectRevert(
+                parkTInstance.bookParking(20, { from: accounts[1], value: 86650 }),
+                'Parking not register',
+            );
+        });
+        it("...should not book a parking for insufficient funds", async () => {
+            await expectRevert(
+                parkTInstance.bookParking(1, { from: accounts[1], value: 200 }),
+                'Insufficient funds',
+            );
+        });
+        it("...should book a parking", async () => {
+            const bookParking = await parkTInstance.bookParking(1, { from: accounts[1], value: 86650 });
+            const bookedParkingId = await parkTInstance.bookedParkingId(1);
+            assert.notEqual(bookedParkingId.timestamp, new BN(1), "timestamp updated")
+            assert.equal(bookedParkingId.driver, accounts[1], "driver updated")
+            assert.equal(bookedParkingId.amount, 86650, "amount updated")
+            expectEvent(bookParking, "ParkingBooked", {
+                parkingId: new BN(1)
+            });
+        });
+        it("...should not book an already booked parking", async () => {
+            await expectRevert(
+                parkTInstance.bookParking(1, { from: accounts[1], value: 86650 }),
+                'Not available',
+            );
+        });
+    });
+
+    describe("fetchParkings", () => {
         it("...should fetch and returns registered parkings", async () => {
             await parkTInstance.registerParking(5, 250, "75014", {x: "48.85449", y:"2.31356"}, { from: accounts[1] });
             await parkTInstance.registerParking(10, 255, "06000", {x: "48.85449", y:"2.31356"}, { from: accounts[2] });
@@ -46,53 +77,18 @@ contract("parkT", accounts => {
             expect(parkings[2].postalCode).to.be.equal("06000");
         });
         it("...should fetch and returns available parkings", async () => {
-            const parkingsBefore = await parkTInstance.fetchParkings();
-            console.log(parkingsBefore);
-            console.log('####AFTER###');
-            await parkTInstance.bookParking(2, { from: accounts[1], value: 864255 });
-            // const bookedParkingId = await parkTInstance.bookedParkingId(2);
-            // const bookedParkingId1 = await parkTInstance.bookedParkingId(1);
-            const parkings = await parkTInstance.fetchParkings();
-            
-            console.log(parkings);
-            // console.log(bookedParkingId.timestamp);
-            // console.log(bookedParkingId1.timestamp);
-            
-            // const availableParkings = await parkTInstance.fetchAvailableParkings();
-            // //assert.equal(await parkTInstance.getAvailableParkingsCounter(), 2, "parkingId equal 2");
-            // console.log('Available parkings vvvvvvvvvvvvvv');
-            // console.log(availableParkings);
-        });
-    });
+            await parkTInstance.registerParking(10, 255, "06000", {x: "48.85449", y:"2.31356"}, { from: accounts[2] });
+            await parkTInstance.registerParking(10, 255, "06200", {x: "48.85449", y:"2.31356"}, { from: accounts[2] });
+            await parkTInstance.registerParking(1, 129, "06300", {x: "48.85449", y:"2.31356"}, { from: accounts[3] });
+            await parkTInstance.registerParking(2, 130, "06400", {x: "48.85449", y:"2.31356"}, { from: accounts[4] });
 
-    describe("bookParking", () => {
-        it("...should not book a parking if is not register", async () => {
-            await expectRevert(
-                parkTInstance.bookParking(5, { from: accounts[1], value: 86650 }),
-                'Parking not register',
-            );
-        });
-        it("...should not book a parking for insufficient funds", async () => {
-            await expectRevert(
-                parkTInstance.bookParking(1, { from: accounts[1], value: 200 }),
-                'Insufficient funds',
-            );
-        });
-        it("...should book a parking", async () => {
-            const bookParking = await parkTInstance.bookParking(1, { from: accounts[1], value: 86650 })
-            const bookedParkingId = await parkTInstance.bookedParkingId(1);
-            assert.notEqual(bookedParkingId.timestamp, new BN(1), "timestamp updated")
-            assert.equal(bookedParkingId.driver, accounts[1], "driver updated")
-            assert.equal(bookedParkingId.requiredAmount, 86650, "amount updated")
-            expectEvent(bookParking, "ParkingBooked", {
-                parkingId: new BN(1)
-            });
-        });
-        it("...should not book an already booked parking", async () => {
-            await expectRevert(
-                parkTInstance.bookParking(1, { from: accounts[1], value: 86650 }),
-                'Not available',
-            );
+            await parkTInstance.bookParking(7, { from: accounts[1], value: 864255 });
+            await parkTInstance.bookParking(2, { from: accounts[2], value: 864255 });
+            await parkTInstance.bookParking(6, { from: accounts[6], value: 864255 });
+            await parkTInstance.bookParking(5, { from: accounts[5], value: 864255 });
+            const fetchAvailableParkings = await parkTInstance.fetchAvailableParkings();
+            expect(fetchAvailableParkings[0].id).to.be.bignumber.equal(new BN(3));
+            expect(fetchAvailableParkings[1].id).to.be.bignumber.equal(new BN(4));
         });
     });
 

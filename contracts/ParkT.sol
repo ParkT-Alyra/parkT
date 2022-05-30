@@ -16,8 +16,6 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
     /// @dev Counter for all booked parkings 
     Counters.Counter private _bookedParkingIds;
 
-    uint public availableParkingsCounter;
-
     /// @notice Emitted when a Parking is register
     /// @dev Emitted when registerParking called
     /// @param parkingId ID of the parking
@@ -86,10 +84,6 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         return _parkingIds.current();
     }
 
-    function getAvailableParkingsCounter() public view returns (uint) {
-        return availableParkingsCounter;
-    }
-
     /// @notice register a parking with all information
     /// @param _price is the price for one second
     /// @param _deposit is the price collateral in case of any problem
@@ -111,25 +105,23 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
         Parking[] memory parkings = new Parking[](parkingCount);
         for (uint i = 0; i < parkingCount; i++) {
             uint currentId = i + 1;
-            Parking storage currentParking = parkingById[currentId];
-            parkings[i] = currentParking;
+            parkings[i] = parkingById[currentId];
         }
         return parkings;
     }
 
     /// @notice fetch all available parkings
     /// @dev return list of all registered parkings that are not already booked
-    function fetchAvailableParkings() public returns (Parking[] memory) {
+    function fetchAvailableParkings() public view returns (Parking[] memory) {
         uint parkingCount = _parkingIds.current();
         uint availableParkingCount = _parkingIds.current() - _bookedParkingIds.current();
-        availableParkingsCounter = availableParkingCount;
+        uint j = 0;
 
         Parking[] memory availableParkings = new Parking[](availableParkingCount);
-        for (uint i = 0; i < parkingCount; i++) {
+        for (uint i = 0; i < parkingCount && j < availableParkingCount; i++) {
             uint currentId = i + 1;
-            Booking memory booking = bookedParkingId[currentId];
-            if (booking.timestamp == 0) {
-                availableParkings[i] = parkingById[currentId];
+            if (bookedParkingId[currentId].timestamp == 0) {
+                availableParkings[j++] = parkingById[currentId];
             }
         }
         return availableParkings;
@@ -163,7 +155,7 @@ contract ParkT is Ownable { //parkTBooking + 1 contrat token
 
     /// @notice release a parking by a driver
     /// @param _parkingId id of the parking wanted to release by the driver
-    /// @dev call by the IOT with the booker address
+    /// @dev call by the IoT with the booker address
     /// @dev save the collateral for the owner and refund the driver
     function releaseParking(uint _parkingId) external {
         Booking memory booking = bookedParkingId[_parkingId];

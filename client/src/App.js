@@ -50,7 +50,9 @@ class App extends Component {
   runInit = async () => {
     const { contract } = this.state;
 
-    const parkings = await contract.methods.fetchParkings().call();
+    const parkings = await contract.methods.fetchAvailableParkings().call();
+
+    console.log(parkings);
 
     // Update state with the result.
     this.setState({ parkings });
