@@ -62,6 +62,7 @@ class App extends Component {
     const { contract, accounts } = this.state;
 
     await contract.methods.registerParking(this.price.value, this.deposite.value, this.postalCode.value, {x: this.coordX.value, y:this.coordY.value }).send({ from: accounts[0] });
+    await this.runInit();
   }
 
   bookParking = async (event) => {
@@ -71,6 +72,7 @@ class App extends Component {
     await contract.events.ParkingBooked({})
       .on("connected", function(subscriptionId){ console.log(subscriptionId);})
       .on('data', function(event){ console.log(event);})
+    await this.runInit();
   }
 
   render() {
@@ -84,7 +86,7 @@ class App extends Component {
       <div className="App">
         <BrowserRouter>
           <Routes>
-            <Route path="/parkT/" element={<Layout accounts={accounts} />}>
+            <Route path="/parkT/" element={<Layout account={accounts[0]} balance={accountBalance}/>}>
               <Route index element={<Home />} />
               <Route path="register-parking"
                 element={<RegisterParking
@@ -107,9 +109,6 @@ class App extends Component {
             </Route>
           </Routes>
         </BrowserRouter>
-        Bonjour, Vous êtes connecté avec l'adresse : {accounts[0]}
-        <br/>
-        Vous disposez de {accountBalance} ETH
       </div>
     );
   }

@@ -3,10 +3,10 @@ import {Outlet} from "react-router-dom";
 import Navbar from "../Navbar";
 
 function Layout(props) {
-    const { accounts } = props;
+    const { account, balance } = props;
     return (
     <>
-      <Navbar accounts />
+      <Navbar account={account} balance={balance} />
       <Outlet />
     </>
   );

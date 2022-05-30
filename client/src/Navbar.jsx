@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import logo from './logo_parkT.png' // relative path to image
 
 function Navbar(props) {
-  const { accounts } = props;
+  const { account, balance } = props;
   return (
     <nav className="navbar is-warning" role="navigation" aria-label="main navigation">
       <div className="navbar-brand">
@@ -21,8 +21,11 @@ function Navbar(props) {
       </div>
       <div className="navbar-end">
         <div className="navbar-item">
+          <a className="button is-black mr-3">
+            <strong>{account}</strong>
+          </a>
           <a className="button is-black">
-            <strong>{accounts[0]}</strong>
+            <strong>{balance}</strong>
           </a>
         </div>
       </div>

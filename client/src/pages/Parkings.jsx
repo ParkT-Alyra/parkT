@@ -42,11 +42,24 @@ function Parkings(props) {
 
     return (
         <div className="Parkings">
-        <h1>Recherchez une place en entrant un code postal</h1>
-        <label>Trouvez des places de parking</label>
-        <input type="text" placeholder="code postal" value={searchedPostalCode} onChange={handleChange}/>
-        <div className="box">
-            <table>
+            <div className="container">
+                <div className="columns">
+                    <div className="column is-full">
+                        <h1 className="title pt-5 has-text-white">Recherchez une place en entrant un code postal</h1>
+                    </div>
+                </div>
+                <div className="columns is-centered">
+                    <div className="column is-one-fifth">
+                        <label className="has-text-white mb-2">Trouvez des places de parking</label>
+                             <input type="text" className="input is-warning is-small is-rounded mb-2"
+                                    placeholder="code postal" value={searchedPostalCode} onChange={handleChange}/>
+                    </div>
+                </div>
+                <div className="columns is-centered">
+                    <div className="column is-half">
+
+                    <div className="box">
+                        <table className="table">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -54,6 +67,7 @@ function Parkings(props) {
                         <th>Prix</th>
                         <th>Caution</th>
                         <th>Position GPS (map)</th>
+                        <th>Réservation</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,6 +75,9 @@ function Parkings(props) {
                 </tbody>
             </table>
         </div>
+    </div>
+                </div>
+    </div>
     </div>
     )
 }
