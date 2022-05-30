@@ -14,7 +14,7 @@ Ces parkings sont filtrés ensuite selon leur disponibilité et leur position.
         Parking[] memory parkings = new Parking[](parkingCount);
         for (uint i = 0; i < parkingCount; i++) {
             uint currentId = i + 1;
-            Parking storage currentParking = parkingById[currentId];
+            Parking memory currentParking = parkingById[currentId];
             parkings[i] = currentParking;
         }
         return parkings;
