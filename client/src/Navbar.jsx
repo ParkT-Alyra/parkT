@@ -24,7 +24,7 @@ function Navbar(props) {
           <a className="button is-black mr-3">
             <strong>{account}</strong>
           </a>
-          <a className="button is-black">
+          <a className="button is-light">
             <strong>{balance}</strong>
           </a>
         </div>
