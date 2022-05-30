@@ -57,28 +57,27 @@ function Parkings(props) {
                 </div>
                 <div className="columns is-centered">
                     <div className="column is-half">
-
-                    <div className="box">
-                        <table className="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Code postal</th>
-                        <th>Prix</th>
-                        <th>Caution</th>
-                        <th>Position GPS (map)</th>
-                        <th>Réservation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {ParkingItems}
-                </tbody>
-            </table>
-        </div>
-    </div>
+                        <div className="box">
+                            <table className="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Code postal</th>
+                                        <th>Prix</th>
+                                        <th>Caution</th>
+                                        <th>Position GPS (map)</th>
+                                        <th>Réservation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {ParkingItems}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-    </div>
-    </div>
+            </div>
+        </div>
     )
 }
 

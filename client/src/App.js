@@ -77,6 +77,11 @@ class App extends Component {
     await this.runInit();
   }
 
+  withdraw = async () => {
+    const { contract, accounts } = this.state;
+    await contract.methods.withdraw().send({ from: accounts[0] })
+  }
+
   render() {
     const { parkings, accounts, accountBalance } = this.state;
 
