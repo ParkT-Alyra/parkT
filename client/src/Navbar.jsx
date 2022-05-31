@@ -1,9 +1,16 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { Link } from "react-router-dom";
 import logo from './logo_parkT.png' // relative path to image
 
 function Navbar(props) {
   const { account, balance } = props;
+    useEffect(() => {
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', () => {
+                window.location.reload();
+            })
+        }
+    });
   return (
     <nav className="navbar is-warning" role="navigation" aria-label="main navigation">
       <div className="navbar-brand">
